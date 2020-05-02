@@ -1,0 +1,54 @@
+{
+  "disk": {
+    "path": [
+      {
+        "type": 1,
+        "path": "/home/yoneyan/vm/1",
+        "status": true
+      },
+      {
+        "type": 2,
+        "path": "/home/yoneyan/vm/2",
+        "status": true
+      },
+      {
+        "type": 3,
+        "path": "/home/yoneyan/vm/3",
+        "status": true
+      },
+      {
+        "type": 4,
+        "path": "/home/yoneyan/vm/4",
+        "status": true
+      },
+      {
+        "type": 5,
+        "path": "/home/yoneyan/vm/5",
+        "status": true
+      },
+      {
+        "type": 6,
+        "path": "/home/yoneyan/vm/6",
+        "status": false
+      },
+      {
+        "type": 7,
+        "path": "/home/yoneyan/vm/6",
+        "status": false
+      },
+      {
+        "type": 8,
+        "path": "/home/yoneyan/vm/6",
+        "status": false
+      },
+      {
+        "type": 9,
+        "path": "/home/yoneyan/vm/6",
+        "status": false
+      }
+    ]
+  },
+  "image": {
+    "path": "/home/yoneyan/image"
+  }
+}
