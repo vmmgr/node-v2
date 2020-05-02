@@ -2,173 +2,152 @@ package manage
 
 import (
 	"fmt"
-	"github.com/yoneyan/vm_mgr/node/etc"
-	pb "github.com/yoneyan/vm_mgr/proto/proto-go"
+	"github.com/vmmgr/node/db"
+	"github.com/vmmgr/node/etc"
+	pb "github.com/vmmgr/node/proto/proto-go"
+	"log"
 	"os/exec"
 	"strconv"
-	"strings"
 )
 
-type Storage struct {
-	Path   string
-	Name   string
-	Format string
-	Size   int
+type result struct {
+	Data string
+	Path string
+	Err  error
+}
+
+type storage struct {
+	path   string
+	format int
+	size   int
 }
 
 func RunStorageCmd(cmd []string) {
 	out, _ := exec.Command("qemu-img", cmd...).Output()
-	fmt.Println(string(out))
+	log.Println(string(out))
 }
 
-func GetMainStorage(data *pb.VMData) string {
-	var basepath, path string
-	sp := strings.Split(data.Option.GetStoragePath(), ",")
-	if len(sp) < 1 {
-		return ""
-	}
-	mode, _ := strconv.Atoi(sp[0])
-	if mode%10 == 0 {
-		path = sp[1] + "/" + data.GetVmname() + "-" + "0.img"
-		fmt.Println("0 Mode")
+func GetMainStorage(data *pb.VMData) result {
+	var basePath, path string
+	sp := data.Storage[0].GetMode()
+	r := db.AddDBStorage(db.Storage{
+		GroupID: int(data.Storage[0].GetGroupID()),
+		Name:    strconv.Itoa(int(data.Storage[0].GetGroupID())),
+		Driver:  int(data.Storage[0].GetDriver()),
+		Mode:    int(data.Storage[0].GetMode()),
+		Path:    data.Storage[0].GetPath(),
+		MaxSize: int(data.Storage[0].GetMaxSize()),
+		Type:    0, Lock: 0})
+
+	if sp == 10 {
+		path = data.Storage[0].GetPath() + "/" + strconv.Itoa(r.ID) + ".img"
+		log.Println("Storage: Manual Mode")
 	} else {
-		basepath = etc.GetDiskPath(mode % 10)
-		fmt.Println(strconv.Itoa(mode%10) + " Mode")
-		if basepath == "" {
-			fmt.Println("Config DiskPath Error")
-			return ""
+		basePath = etc.GetDiskPath(int(data.Storage[0].GetMode()))
+		log.Println("Storage: Auto Mode " + strconv.Itoa(int(data.Storage[0].GetMode())))
+		if basePath == "" {
+			return result{Path: "", Err: fmt.Errorf("Error: no diskpath on configfile ")}
 		}
-		fmt.Println("basepath: " + basepath)
-		return basepath + "/" + data.GetVmname() + "-" + "0.img"
+		log.Println("basePath: " + basePath)
+		path = basePath + "/" + strconv.Itoa(r.ID) + ".img"
 	}
-	return path
+	return result{Path: path, Err: nil}
 }
 
-func StorageProcess(data *pb.VMData) string {
-	//GetStorage is StorageSize
-	s := strings.Split(data.GetStorage(), ",")
-	//GetStoragePath is StoragePath and Mode
-	sp := strings.Split(data.Option.GetStoragePath(), ",")
-	j := 0
-	var path, basepath string
-	var result []string
-	var mode int
+func StorageProcess(data *pb.VMData) result {
+	for _, data := range data.Storage {
+		var basePath, path string
 
-	//auto mode
-	if data.GetType()/10 == 1 {
-		fmt.Println("Storage AutoMode")
-		for _, a := range sp {
-			mode, _ = strconv.Atoi(a)
-			result = append(result, strconv.Itoa(mode+10))
-			basepath = etc.GetDiskPath(mode % 10)
-			if basepath == "" {
-				fmt.Println("Config DiskPath Error")
-				return ""
+		r := db.AddDBStorage(db.Storage{
+			GroupID: int(data.GetGroupID()),
+			Name:    strconv.Itoa(int(data.GetGroupID())),
+			Driver:  int(data.GetDriver()),
+			Mode:    int(data.GetMode()),
+			Path:    data.GetPath(),
+			MaxSize: int(data.GetMaxSize()),
+			Type:    0, Lock: 0})
+		if data.Mode == 10 {
+			path = data.GetPath() + "/" + strconv.Itoa(r.ID) + ".img"
+			log.Println("Storage: Manual Mode")
+		} else {
+			basePath = etc.GetDiskPath(int(data.GetMode()))
+			log.Println("Storage: Auto Mode " + strconv.Itoa(int(data.GetMode())))
+			if basePath == "" {
+				return result{Err: fmt.Errorf("Error: no diskpath on configfile ")}
 			}
-			fmt.Println("basepath: " + path)
-			image := data.GetVmname() + "-" + strconv.Itoa(j) + ".img"
-			path = basepath + "/" + image
-			fmt.Println("path: " + path)
+			log.Println("basePath: " + basePath)
+			path = basePath + "/" + strconv.Itoa(r.ID) + ".img"
+		}
+		err := CreateStorage(storage{path: path, format: int(data.Mode), size: int(data.MaxSize)})
+		if err != nil {
+			return result{Err: err}
+		}
 
-			if FileExistsCheck(path) == false && j != 0 {
-				size, result := strconv.Atoi(s[j])
-				if result != nil {
-					fmt.Println("Error: string to int")
-				}
-				CreateStorage(&Storage{Path: path, Format: "qcow2", Size: size})
-			}
-			result = append(result, image)
-			j++
-		}
-	} else {
-		fmt.Println("Storage ManualMode")
-		for i, a := range sp {
-			if i/2 == 0 {
-				result = append(result, a)
-				mode, _ = strconv.Atoi(a)
-			} else {
-				path = a + "/" + data.GetVmname() + "-" + strconv.Itoa(j) + ".img"
-				fmt.Println("path: " + path)
-				if FileExistsCheck(path) == false {
-					size, result := strconv.Atoi(s[j])
-					if result != nil {
-						fmt.Println("Error: string to int")
-					}
-					CreateStorage(&Storage{Path: path, Format: "qcow2", Size: size})
-				}
-				result = append(result, data.GetVmname()+"-"+strconv.Itoa(j)+".img")
-				j++
-			}
-		}
 	}
-
-	fmt.Println("StorageProcess Result: ")
-	fmt.Println(result)
-	return strings.Join(result, ",")
+	return result{Err: nil}
 }
 
 //path, name string, format, size int
-func CreateStorage(s *Storage) error {
-	fmt.Println("----storage create----")
-	if s.Size < 0 {
+func CreateStorage(s storage) error {
+	log.Println("----storage create----")
+	var extension string
+	if s.size < 0 {
 		return fmt.Errorf("Wrong storage size !!")
 	}
-	if s.Format != "qcow2" && s.Format != "raw" {
-		return fmt.Errorf("Wrong storage format !!")
+	//0: virtio 1:img
+	if s.format == 1 {
+		extension = "img"
+	} else {
+		extension = "virtio"
 	}
 
 	var cmd []string
-
 	//qemu-img create [-f format] filename [size]
+	cmdArray := []string{"create", "-f", extension, s.path, strconv.Itoa(s.size) + "M"}
 
-	cmdarray := []string{"create", "-f", s.Format, s.Path, strconv.Itoa(s.Size) + "M"}
-
-	fmt.Println(cmdarray)
-
-	cmd = append(cmd, cmdarray...)
-
+	log.Println(cmdArray)
+	cmd = append(cmd, cmdArray...)
 	RunStorageCmd(cmd)
 
 	return nil
 }
 
-func DeleteStorage(s *Storage) error {
+func DeleteStorage(s storage) error {
 	var cmd []string
 
-	filepath := etc.GeneratePath(s.Path, s.Name)
-	if FileExistsCheck(filepath) {
+	if FileExistsCheck(s.path) {
 		cmd = append(cmd, "info")
-		cmd = append(cmd, filepath+".img")
+		cmd = append(cmd, s.path+".img")
+		RunStorageCmd(cmd)
 
 		return nil
 	}
-	RunStorageCmd(cmd)
 
-	return fmt.Errorf("File not exits!!")
+	return fmt.Errorf("File not exists !! ")
 }
 
-func ResizeStorage(s *Storage) error {
-	//qemu-img resize filename size
+func ResizeStorage(s storage) error {
+	//qemu-img resize [filename] [size]
 
 	var cmd []string
 
 	cmd = append(cmd, "qemu-img")
 	cmd = append(cmd, "resize")
-	cmd = append(cmd, s.Path)
-	cmd = append(cmd, strconv.Itoa(s.Size)+"M")
+	cmd = append(cmd, s.path)
+	cmd = append(cmd, strconv.Itoa(s.size)+"M")
 
 	RunStorageCmd(cmd)
 
 	return nil
 }
 
-func InformationStorage(s *Storage) error {
-	//qemu-img info [-f format] filename
+func InformationStorage(s storage) error {
+	//qemu-img info [-f format] [filename]
 	var cmd []string
 
 	cmd = append(cmd, "qemu-img")
 	cmd = append(cmd, "info")
-	cmd = append(cmd, etc.GeneratePath(s.Path, s.Name))
+	cmd = append(cmd, s.path)
 
 	RunStorageCmd(cmd)
 	return nil
