@@ -1,12 +1,9 @@
 package db
 
-import "fmt"
-
 //Add
-func AddDBVM(data VM) result {
+func AddDBNet(data Net) result {
 	db := InitDB()
 	defer db.Close()
-	//db.Table("group").CreateTable(&data)
 	db.Create(&data)
 
 	if err := db.Error; err != nil {
@@ -18,58 +15,54 @@ func AddDBVM(data VM) result {
 }
 
 //Delete
-func DeleteDBVM(data VM) result {
+func DeleteDBNet(data Net) bool {
 	db := InitDB()
 	defer db.Close()
 	db.Delete(&data)
 
 	if err := db.Error; err != nil {
 		db.Rollback()
-		return result{Result: false, ID: 0}
+		return false
 	} else {
-		return result{Result: true, ID: data.ID}
+		return true
 	}
 }
 
 //Update
-func UpdateDBVM(data VM) result {
+func UpdateDBNet(data Net) bool {
 	db := InitDB()
 	defer db.Close()
-	db.Model(&data).Updates(VM{CPU: data.CPU, Mem: data.Mem, Status: data.Status, AutoStart: data.AutoStart})
+	db.Model(&data).Updates(Net{Name: data.Name, Driver: data.Driver, Vlan: data.Vlan, Status: data.Status})
 
 	if err := db.Error; err != nil {
 		db.Rollback()
-		return result{Result: false, ID: 0}
+		return false
 	} else {
-		return result{Result: true, ID: data.ID}
+		return true
 	}
 }
 
 //Get
-func GetAllDBVM() []VM {
+func GetAllDBNet() []Net {
 	db := InitDB()
 	defer db.Close()
 
-	var vm []VM
+	var vm []Net
 	db.Find(&vm)
 	return vm
 }
 
-func SearchDBVM(data VM) (VM, error) {
+func SearchDBNet(data Net) Net {
 	db := InitDB()
 	defer db.Close()
 
-	var result VM
-	//search VMName and VMID
+	var result Net
+	//search NetName and NetID
 	if data.Name != "" {
 		db.Where("name = ?", data.Name).First(&result)
 	} else if data.ID != 0 { //初期値0であることが前提　確認の必要あり
 		db.Where("ID = ?", data.ID).First(&result)
 	}
 
-	if err := db.Error; err != nil {
-		return data, fmt.Errorf("Error: DB Error ")
-	} else {
-		return result, nil
-	}
+	return result
 }

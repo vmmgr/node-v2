@@ -1,46 +1,79 @@
 package db
 
 import (
-	"database/sql"
-	"fmt"
-	_ "github.com/mattn/go-sqlite3"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"log"
+	"time"
 )
 
-const dbName = "./node.db"
+const dbPath = "./node.db"
 
 type VM struct {
-	ID          int
-	Name        string
-	CPU         int
-	Mem         int
-	Storage     string
-	StoragePath string
-	Net         string
-	Vnc         int
-	Socket      string
-	Status      int
-	AutoStart   bool
+	ID        int `gorm:primary_key`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	GroupID   int
+	Name      string
+	CPU       int
+	Mem       int
+	Storage   string
+	Net       string
+	Status    int
+	AutoStart bool
 }
 
-func connectdb() *sql.DB {
-	db, err := sql.Open("sqlite3", dbName)
+type Storage struct {
+	ID        int `gorm:primary_key`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	GroupID   int
+	Name      string
+	Driver    int //0:virtio
+	Type      int //0:qcow2(default) 1:img
+	Mode      int //0~9:AutoPath 10:ManualPath
+	Path      string
+	MaxSize   int
+	Lock      int
+}
+
+type Net struct {
+	ID         int `gorm:primary_key`
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
+	GroupID    string
+	Name       string
+	Driver     int //0:virtio 1:e1000
+	MacAddress string
+	Vlan       int
+	Status     int
+}
+
+type result struct {
+	Result bool
+	ID     int
+}
+
+func InitCreateDB() {
+	db := InitDB()
+	defer db.Close()
+}
+
+func InitDB() *gorm.DB {
+	return initSQLite3()
+}
+
+func initSQLite3() *gorm.DB {
+	db, err := gorm.Open("sqlite3", dbPath)
 	if err != nil {
-		fmt.Println(err)
-		fmt.Println("SQL open error")
+		log.Println("SQL open error")
 	}
+	//db.LogMode(true)
+	db.SingularTable(true)
+
+	db.AutoMigrate(&VM{})
+	db.AutoMigrate(&Storage{})
+	db.AutoMigrate(&Net{})
 
 	return db
-}
-
-func Createdb() bool {
-	db := *connectdb()
-	defer db.Close()
-
-	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS "vm" ("id" INTEGER PRIMARY KEY, "name" VARCHAR(255), "cpu" INT,"memory" INT, "storage" VARCHAR(500),"storagepath" VARCHAR(500),"net" VARCHAR(255),"vnc" INT, "socket" VARCHAR(255),"status" INT,"autostart" boolean)`)
-	if err != nil {
-		fmt.Println(err)
-		fmt.Println("Error: SQL open Error")
-		return false
-	}
-	return true
 }

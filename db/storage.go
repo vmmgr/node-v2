@@ -1,9 +1,7 @@
 package db
 
-import "fmt"
-
 //Add
-func AddDBVM(data VM) result {
+func AddDBStorage(data Storage) result {
 	db := InitDB()
 	defer db.Close()
 	//db.Table("group").CreateTable(&data)
@@ -18,58 +16,54 @@ func AddDBVM(data VM) result {
 }
 
 //Delete
-func DeleteDBVM(data VM) result {
+func DeleteDBStorage(data Storage) bool {
 	db := InitDB()
 	defer db.Close()
 	db.Delete(&data)
 
 	if err := db.Error; err != nil {
 		db.Rollback()
-		return result{Result: false, ID: 0}
+		return false
 	} else {
-		return result{Result: true, ID: data.ID}
+		return true
 	}
 }
 
 //Update
-func UpdateDBVM(data VM) result {
+func UpdateDBStorage(data Storage) bool {
 	db := InitDB()
 	defer db.Close()
-	db.Model(&data).Updates(VM{CPU: data.CPU, Mem: data.Mem, Status: data.Status, AutoStart: data.AutoStart})
+	db.Model(&data).Updates(Storage{GroupID: data.GroupID, Name: data.Name, Driver: data.Driver, MaxSize: data.MaxSize, Lock: data.Lock})
 
 	if err := db.Error; err != nil {
 		db.Rollback()
-		return result{Result: false, ID: 0}
+		return false
 	} else {
-		return result{Result: true, ID: data.ID}
+		return true
 	}
 }
 
 //Get
-func GetAllDBVM() []VM {
+func GetAllDBStorage() []Storage {
 	db := InitDB()
 	defer db.Close()
 
-	var vm []VM
+	var vm []Storage
 	db.Find(&vm)
 	return vm
 }
 
-func SearchDBVM(data VM) (VM, error) {
+func SearchDBStorage(data Storage) Storage {
 	db := InitDB()
 	defer db.Close()
 
-	var result VM
-	//search VMName and VMID
+	var result Storage
+	//search StorageName and StorageID
 	if data.Name != "" {
 		db.Where("name = ?", data.Name).First(&result)
 	} else if data.ID != 0 { //初期値0であることが前提　確認の必要あり
 		db.Where("ID = ?", data.ID).First(&result)
 	}
 
-	if err := db.Error; err != nil {
-		return data, fmt.Errorf("Error: DB Error ")
-	} else {
-		return result, nil
-	}
+	return result
 }
