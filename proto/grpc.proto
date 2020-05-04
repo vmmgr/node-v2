@@ -36,6 +36,16 @@ service Node {
   }
   rpc GetAllNet (Null) returns (stream NetData){
   }
+  rpc AddNIC(NICData) returns (Result){
+  }
+  rpc DeleteNIC(NICData) returns (Result){
+  }
+  rpc UpdateNIC(NICData) returns (Result){
+  }
+  rpc GetNIC (NICData) returns (NICData){
+  }
+  rpc GetAllNIC (Null) returns (stream NICData){
+  }
   rpc StopNode(Null)returns (Result){
   }
 }
@@ -72,10 +82,19 @@ message StorageData{
 message NetData{
   int64 ID = 1;
   string Name = 2;
+  repeated int64 GroupID = 3;
+  int32 VLAN = 4;
+  bool Lock = 5;
+}
+
+message NICData{
+  int64 ID = 1;
+  string Name = 2;
   int64 GroupID = 3;
-  int32 Driver = 4;
-  int32 VLAN = 5;
-  bool Lock = 6;
+  int64 NetID = 4;
+  string MacAddress = 5;
+  int32 Driver = 6;
+  bool Lock = 7;
 }
 
 message SnapShot {
