@@ -79,7 +79,7 @@ type VMData struct {
 	Mem       int32          `protobuf:"varint,5,opt,name=Mem,proto3" json:"Mem,omitempty"`
 	ISO       string         `protobuf:"bytes,6,opt,name=ISO,proto3" json:"ISO,omitempty"`
 	Storage   []*StorageData `protobuf:"bytes,7,rep,name=Storage,proto3" json:"Storage,omitempty"`
-	Net       []*NetData     `protobuf:"bytes,8,rep,name=Net,proto3" json:"Net,omitempty"`
+	Net       []*NetData     `protobuf:"bytes,8,rep,name=net,proto3" json:"net,omitempty"`
 	AutoStart bool           `protobuf:"varint,9,opt,name=AutoStart,proto3" json:"AutoStart,omitempty"`
 }
 
@@ -820,7 +820,7 @@ var file_grpc_proto_goTypes = []interface{}{
 }
 var file_grpc_proto_depIdxs = []int32{
 	2,  // 0: VMData.Storage:type_name -> StorageData
-	3,  // 1: VMData.Net:type_name -> NetData
+	3,  // 1: VMData.net:type_name -> NetData
 	5,  // 2: StorageData.SnapShot:type_name -> SnapShot
 	1,  // 3: Node.AddVM:input_type -> VMData
 	1,  // 4: Node.DeleteVM:input_type -> VMData
