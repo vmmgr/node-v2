@@ -1,7 +1,7 @@
 package db
 
 //Add
-func AddDBNet(data Net) result {
+func AddDBNIC(data NIC) result {
 	db := InitDB()
 	defer db.Close()
 	db.Create(&data)
@@ -14,7 +14,7 @@ func AddDBNet(data Net) result {
 }
 
 //Delete
-func DeleteDBNet(data Net) result {
+func DeleteDBNIC(data NIC) result {
 	db := InitDB()
 	defer db.Close()
 	db.Delete(&data)
@@ -27,10 +27,10 @@ func DeleteDBNet(data Net) result {
 }
 
 //Update
-func UpdateDBNet(data Net) result {
+func UpdateDBNIC(data NIC) result {
 	db := InitDB()
 	defer db.Close()
-	db.Model(&data).Updates(Net{Name: data.Name, GroupID: data.GroupID, VLAN: data.VLAN, Lock: data.Lock})
+	db.Model(&data).Updates(NIC{Name: data.Name, Driver: data.Driver, GroupID: data.GroupID, NetID: data.NetID, MacAddress: data.MacAddress, Lock: data.Lock})
 
 	if err := db.Error; err != nil {
 		db.Rollback()
@@ -40,28 +40,27 @@ func UpdateDBNet(data Net) result {
 }
 
 //Get
-
-func SearchDBNet(data Net) (Net, error) {
+func SearchDBNIC(data NIC) (NIC, error) {
 	db := InitDB()
 	defer db.Close()
-	var result Net
+	var result NIC
 
 	db.Where("ID = ?", data.ID).First(&result)
 
 	if err := db.Error; err != nil {
-		return Net{}, err
+		return NIC{}, err
 	}
 	return result, nil
 }
 
-func GetAllDBNet() ([]Net, error) {
+func GetAllDBNIC() ([]NIC, error) {
 	db := InitDB()
 	defer db.Close()
 
-	var net []Net
+	var net []NIC
 	db.Find(&net)
 	if err := db.Error; err != nil {
-		return []Net{}, err
+		return []NIC{}, err
 	}
 	return net, nil
 }

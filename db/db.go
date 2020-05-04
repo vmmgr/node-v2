@@ -38,15 +38,25 @@ type Storage struct {
 }
 
 type Net struct {
+	ID        int `gorm:primary_key`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	GroupID   string
+	Name      string
+	VLAN      int
+	Lock      int
+}
+
+type NIC struct {
 	ID         int `gorm:primary_key`
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
-	GroupID    string
+	GroupID    int
+	NetID      int
 	Name       string
-	Driver     int //0:virtio 1:e1000
+	Driver     int //1:virtio 2:e1000
 	MacAddress string
-	Vlan       int
-	Status     int
+	Lock       int
 }
 
 type result struct {
@@ -74,6 +84,7 @@ func initSQLite3() *gorm.DB {
 	db.AutoMigrate(&VM{})
 	db.AutoMigrate(&Storage{})
 	db.AutoMigrate(&Net{})
+	db.AutoMigrate(&NIC{})
 
 	return db
 }
