@@ -22,35 +22,36 @@ type storage struct {
 	size   int
 }
 
-//Driver 0:qcow2(default) 1:img
-func AddStorage(data *pb.StorageData) result {
-	var basePath, path string
-	driver := 0
-	extension := "qcow2"
+type Tmp struct {
+	Info string
+}
 
+//Driver 0:qcow2(default) 1:img
+func (t *Tmp) AddStorage(data *pb.StorageData) result {
+	var basePath, path string
 	if storageCmdCheck(data) == false {
 		return result{Err: fmt.Errorf("Error: command wrong... ")}
 	}
-
-	if data.GetDriver() == 1 {
-		driver = int(data.GetDriver())
-		extension = "img"
+	d := getDriver(int(data.GetDriver()))
+	manualPath := data.GetPath()
+	if 0 < data.GetMode() && data.GetMode() < 10 {
+		manualPath = ""
 	}
 
 	//add storage database
 	r := db.AddDBStorage(db.Storage{
 		GroupID: int(data.GetGroupID()),
 		Name:    strconv.Itoa(int(data.GetGroupID())),
-		Driver:  driver,
+		Driver:  d.driver,
 		Mode:    int(data.GetMode()),
-		Path:    data.GetPath(),
+		Path:    manualPath,
 		MaxSize: int(data.GetMaxSize()),
 		Type:    0, Lock: 0})
 
 	if data.GetMode() == 10 {
-		path = data.GetPath() + "/" + strconv.Itoa(r.ID) + ".img"
+		path = manualPath + "/" + strconv.Itoa(r.ID) + "."
 		log.Println("AddStorage: Manual Mode")
-	} else {
+	} else if 0 < data.GetMode() && data.GetMode() < 10 {
 		basePath = etc.GetDiskPath(int(data.GetMode()))
 		log.Println("AddStorage: Auto Mode " + strconv.Itoa(int(data.GetMode())))
 		if basePath == "" {
@@ -58,25 +59,101 @@ func AddStorage(data *pb.StorageData) result {
 		}
 		log.Println("basePath: " + basePath)
 		path = basePath + "/" + strconv.Itoa(r.ID) + "."
+	} else {
+		return result{Err: fmt.Errorf("Error: mode value error ")}
 	}
 
-	path += extension
-
+	path += d.extension
 	//apply vm image or not
 	if data.GetImage() == "" {
-		createStorageCmd(storage{path: path, format: extension, size: int(data.GetMaxSize())})
+		createStorageCmd(storage{path: path, format: d.extension, size: int(data.GetMaxSize())})
 	} else {
-		fileCopy(data.GetImage(), path)
+		r := t.fileCopy(data.GetImage(), path)
+		if r.Err != nil {
+			return result{Info: r.Info, Err: r.Err}
+		}
 	}
-
-	return result{Path: path, Err: nil}
+	return result{Info: "OK", Err: nil}
 }
 
-//func DeleteStorage(data *pb.StorageData) result {
-////	add storage database
-//r := db.DeleteDBStorage(db.Storage{ID: int(data.GetID())})
-//
-//
-//
-//return result{Path: path, Err: nil}
-//}
+func DeleteStorage(data *pb.StorageData) result {
+	var path string
+	dbData, err := db.SearchDBStorage(db.Storage{ID: int(data.GetID())})
+	if err != nil {
+		return result{Err: fmt.Errorf("Error: db read error ")}
+	}
+	if 0 < dbData.Mode && dbData.Mode < 10 {
+		basePath := etc.GetDiskPath(dbData.Mode)
+		if basePath == "" {
+			return result{Err: fmt.Errorf("Error: no diskpath on configfile ")}
+		}
+		path = basePath + "/" + strconv.Itoa(int(data.ID)) + "."
+	} else if dbData.Mode == 10 {
+		path = dbData.Path + "/" + strconv.Itoa(int(data.ID)) + "."
+	}
+	d := getDriver(int(data.GetDriver()))
+	path += d.extension
+	log.Println("Path: " + path)
+
+	if cmdResult := deleteStorageCmd(storage{path: path}); cmdResult.Err != nil {
+		return result{Err: fmt.Errorf("Error: delete failed !! ")}
+	}
+
+	if deleteResult := db.DeleteDBStorage(db.Storage{ID: int(data.GetID())}); deleteResult.Error != nil {
+		return result{Err: fmt.Errorf("Error: delete db error !! ")}
+	}
+	return result{Info: "OK", Err: nil}
+}
+
+func UpdateStorage(data *pb.StorageData) result {
+	var path string
+	dbData, err := db.SearchDBStorage(db.Storage{ID: int(data.GetID())})
+	if err != nil {
+		return result{Info: "Error: db read error", Err: err}
+	}
+	if dbData.Lock == 1 {
+		return result{Err: fmt.Errorf("Error: disk is locked ")}
+	}
+
+	if 0 < dbData.Mode && dbData.Mode < 10 {
+		basePath := etc.GetDiskPath(dbData.Mode)
+		if basePath == "" {
+			return result{Err: fmt.Errorf("Error: no diskpath on configfile ")}
+		}
+		path = basePath + "/" + strconv.Itoa(int(data.ID)) + "."
+	} else if dbData.Mode == 10 {
+		path = dbData.Path + "/" + strconv.Itoa(int(data.ID)) + "."
+	}
+	d := getDriver(int(data.GetDriver()))
+	path += d.extension
+	log.Println("Path: " + path)
+
+	if dbData.MaxSize < int(data.MaxSize) {
+		if cmdResult := resizeStorageCmd(storage{path: path, size: int(data.MaxSize)}); cmdResult.Err != nil {
+			return result{Info: "Error: storage resize failed !! ", Err: cmdResult.Err}
+		}
+		dbData.MaxSize = int(data.MaxSize)
+	}
+
+	if data.Path != "" {
+		dbData.Path = path
+	}
+	if data.Name != "" {
+		dbData.Name = data.Name
+	}
+	if data.GroupID != 0 {
+		dbData.GroupID = int(data.GroupID)
+	}
+	if data.Mode != 0 {
+		dbData.Mode = int(data.Mode)
+	}
+	if data.Driver != 0 {
+		dbData.Driver = int(data.Driver)
+	}
+
+	if r := db.UpdateDBStorage(dbData); r.Error != nil {
+		return result{Err: err}
+	} else {
+		return result{Info: "OK", Err: nil}
+	}
+}

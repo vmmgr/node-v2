@@ -38,7 +38,7 @@ func deleteStorageCmd(s storage) result {
 	return result{Info: "OK", Err: nil}
 }
 
-func ResizeStorageCmd(s storage) result {
+func resizeStorageCmd(s storage) result {
 	//qemu-img resize [filename] [size]
 	return RunStorageCmd([]string{"qemu-img", "resize", s.path, strconv.Itoa(s.size) + "M"})
 }
