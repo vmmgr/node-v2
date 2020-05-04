@@ -30,7 +30,7 @@ type Storage struct {
 	GroupID   int
 	Name      string
 	Driver    int //0:virtio
-	Type      int //0:qcow2(default) 1:img
+	Type      int //1:qcow2(default) 2:img
 	Mode      int //0~9:AutoPath 10:ManualPath
 	Path      string
 	MaxSize   int
@@ -50,8 +50,8 @@ type Net struct {
 }
 
 type result struct {
-	Result bool
-	ID     int
+	ID    int
+	Error error
 }
 
 func InitCreateDB() {

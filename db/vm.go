@@ -11,10 +11,9 @@ func AddDBVM(data VM) result {
 
 	if err := db.Error; err != nil {
 		db.Rollback()
-		return result{Result: false, ID: 0}
-	} else {
-		return result{Result: true, ID: data.ID}
+		return result{Error: err}
 	}
+	return result{Error: nil, ID: data.ID}
 }
 
 //Delete
@@ -25,10 +24,9 @@ func DeleteDBVM(data VM) result {
 
 	if err := db.Error; err != nil {
 		db.Rollback()
-		return result{Result: false, ID: 0}
-	} else {
-		return result{Result: true, ID: data.ID}
+		return result{Error: err, ID: 0}
 	}
+	return result{Error: nil, ID: data.ID}
 }
 
 //Update
@@ -39,37 +37,34 @@ func UpdateDBVM(data VM) result {
 
 	if err := db.Error; err != nil {
 		db.Rollback()
-		return result{Result: false, ID: 0}
-	} else {
-		return result{Result: true, ID: data.ID}
+		return result{Error: err}
 	}
+	return result{Error: nil, ID: data.ID}
 }
 
 //Get
-func GetAllDBVM() []VM {
-	db := InitDB()
-	defer db.Close()
-
-	var vm []VM
-	db.Find(&vm)
-	return vm
-}
 
 func SearchDBVM(data VM) (VM, error) {
 	db := InitDB()
 	defer db.Close()
 
 	var result VM
-	//search VMName and VMID
-	if data.Name != "" {
-		db.Where("name = ?", data.Name).First(&result)
-	} else if data.ID != 0 { //初期値0であることが前提　確認の必要あり
-		db.Where("ID = ?", data.ID).First(&result)
-	}
+	db.Where("ID = ?", data.ID).First(&result)
 
 	if err := db.Error; err != nil {
 		return data, fmt.Errorf("Error: DB Error ")
-	} else {
-		return result, nil
 	}
+	return result, nil
+}
+
+func GetAllDBVM() ([]VM, error) {
+	db := InitDB()
+	defer db.Close()
+	var vm []VM
+	db.Find(&vm)
+
+	if err := db.Error; err != nil {
+		return []VM{}, err
+	}
+	return vm, nil
 }
