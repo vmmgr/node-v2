@@ -16,7 +16,7 @@ service Node {
   }
   rpc GetAllVM (Null) returns (stream VMData){
   }
-  rpc AddStorage(StorageData) returns (Result){
+  rpc AddStorage(StorageData) returns (stream Result){
   }
   rpc DeleteStorage(StorageData) returns (Result){
   }
@@ -58,21 +58,24 @@ message VMData{
 
 message StorageData{
   int64 ID = 1;
-  int64 GroupID = 2;
-  int32 Driver = 3;
-  int32 Mode = 4; //0~9:AutoMode 10:ManualMode
-  string Path = 5; //Only Manual Mode
-  int64 MaxSize = 6;
-  repeated SnapShot SnapShot = 7;
-  bool Lock = 8;
+  string Name = 2;
+  int64 GroupID = 3;
+  int32 Driver = 4; //1:virtio
+  int32 Mode = 5; //1~9:AutoMode 10:ManualMode
+  string Path = 6; //Only Manual Mode
+  int64 MaxSize = 7;
+  repeated SnapShot SnapShot = 8;
+  string Image = 9; //image path
+  bool Lock = 10;
 }
 
 message NetData{
   int64 ID = 1;
-  int64 GroupID = 2;
-  int32 Driver = 3;
-  int32 VLAN = 4;
-  bool Lock = 5;
+  string Name = 2;
+  int64 GroupID = 3;
+  int32 Driver = 4;
+  int32 VLAN = 5;
+  bool Lock = 6;
 }
 
 message SnapShot {
