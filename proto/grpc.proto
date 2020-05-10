@@ -84,7 +84,8 @@ message NetData{
   string Name = 2;
   repeated int64 GroupID = 3;
   int32 VLAN = 4;
-  bool Lock = 5;
+  int32 Option = 5; //1:Add 2:Delete
+  bool Lock = 6;
 }
 
 message NICData{
