@@ -19,6 +19,7 @@ type VM struct {
 	Mem       int
 	Storage   string
 	Net       string
+	PCI       string
 	Status    int
 	AutoStart bool
 }
