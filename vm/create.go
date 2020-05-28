@@ -88,11 +88,11 @@ func CreateVMProcess(c *CreateVMInformation) (string, bool) {
 	}
 
 	CreateVMDBProcess(c)
-	err := RunQEMUCmd(CreateGenerateCmd(c))
+	err := runQEMUCmd(CreateGenerateCmd(c))
 	if err != nil {
 		fmt.Println(err)
 		log.Println("VMNewCreate Error!!")
-		return "Error: RunQEMUCmd", false
+		return "Error: runQEMUCmd", false
 	} else {
 		db.VMDBStatusUpdate(c.ID, 1)
 	}
