@@ -40,7 +40,6 @@ func UpdateDBNet(data Net) result {
 }
 
 //Get
-
 func SearchDBNet(data Net) (Net, error) {
 	db := InitDB()
 	defer db.Close()

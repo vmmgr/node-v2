@@ -51,10 +51,10 @@ func UpdateNet(data *pb.NetData) result {
 	} else if dbData.Lock != 0 {
 		return result{Err: fmt.Errorf("Error: Locked Net !! ")}
 	}
-	if data.VLAN != 0 {
+	if data.GetVLAN() != 0 {
 		dbData.VLAN = int(data.GetVLAN())
 	}
-	if data.Name != "" {
+	if data.GetName() != "" {
 		dbData.Name = data.GetName()
 	}
 	if data.GetOption() != 0 {
@@ -85,5 +85,9 @@ func UpdateNet(data *pb.NetData) result {
 		}
 		dbData.GroupID = strings.Join(gid, ",")
 	}
-	return result{Info: "OK", Err: nil}
+	if r := db.UpdateDBNet(dbData); r.Error != nil {
+		return result{Info: "OK", Err: nil}
+	} else {
+		return result{Info: "Error: db update error", Err: r.Error}
+	}
 }

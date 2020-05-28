@@ -87,9 +87,9 @@ func DeleteStorage(data *pb.StorageData) result {
 		if basePath == "" {
 			return result{Err: fmt.Errorf("Error: no diskpath on configfile ")}
 		}
-		path = basePath + "/" + strconv.Itoa(int(data.ID)) + "."
+		path = basePath + "/" + strconv.Itoa(int(data.GetID())) + "."
 	} else if dbData.Mode == 10 {
-		path = dbData.Path + "/" + strconv.Itoa(int(data.ID)) + "."
+		path = dbData.Path + "/" + strconv.Itoa(int(data.GetID())) + "."
 	}
 	d := getDriver(int(data.GetDriver()))
 	path += d.extension
@@ -120,35 +120,35 @@ func UpdateStorage(data *pb.StorageData) result {
 		if basePath == "" {
 			return result{Err: fmt.Errorf("Error: no diskpath on configfile ")}
 		}
-		path = basePath + "/" + strconv.Itoa(int(data.ID)) + "."
+		path = basePath + "/" + strconv.Itoa(int(data.GetID())) + "."
 	} else if dbData.Mode == 10 {
-		path = dbData.Path + "/" + strconv.Itoa(int(data.ID)) + "."
+		path = dbData.Path + "/" + strconv.Itoa(int(data.GetID())) + "."
 	}
 	d := getDriver(int(data.GetDriver()))
 	path += d.extension
 	log.Println("Path: " + path)
 
-	if dbData.MaxSize < int(data.MaxSize) {
+	if dbData.MaxSize < int(data.GetMaxSize()) {
 		if cmdResult := resizeStorageCmd(storage{path: path, size: int(data.MaxSize)}); cmdResult.Err != nil {
 			return result{Info: "Error: storage resize failed !! ", Err: cmdResult.Err}
 		}
-		dbData.MaxSize = int(data.MaxSize)
+		dbData.MaxSize = int(data.GetMaxSize())
 	}
 
-	if data.Path != "" {
-		dbData.Path = path
+	if data.GetPath() != "" {
+		dbData.Path = data.GetPath()
 	}
-	if data.Name != "" {
-		dbData.Name = data.Name
+	if data.GetName() != "" {
+		dbData.Name = data.GetName()
 	}
-	if data.GroupID != 0 {
-		dbData.GroupID = int(data.GroupID)
+	if data.GetGroupID() != 0 {
+		dbData.GroupID = int(data.GetGroupID())
 	}
-	if data.Mode != 0 {
-		dbData.Mode = int(data.Mode)
+	if data.GetMode() != 0 {
+		dbData.Mode = int(data.GetMode())
 	}
-	if data.Driver != 0 {
-		dbData.Driver = int(data.Driver)
+	if data.GetDriver() != 0 {
+		dbData.Driver = int(data.GetDriver())
 	}
 
 	if r := db.UpdateDBStorage(dbData); r.Error != nil {
