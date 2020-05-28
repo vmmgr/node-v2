@@ -58,12 +58,14 @@ message VMData{
   int64 ID = 1;
   string Name = 2;
   int64 GroupID = 3;
-  int32 CPU = 4;
-  int32 Mem = 5;
-  string ISO = 6;
-  repeated StorageData Storage = 7;
-  repeated NetData Net = 8;
-  bool AutoStart = 9;
+  int32 CPU = 4; //core
+  int32 Mem = 5; //MB
+  int32 Boot = 6; //0~9:HDDBoot[0~9] 10:CDROMBoot
+  string ISO = 7;
+  repeated StorageData Storage = 8;
+  repeated NetData Net = 9;
+  repeated PCIData PCIData = 10;
+  bool AutoStart = 11;
 }
 
 message StorageData{
@@ -96,6 +98,13 @@ message NICData{
   string MacAddress = 5;
   int32 Driver = 6;
   bool Lock = 7;
+}
+
+message PCIData{
+  int64 ID = 1;
+  string Name = 2;
+  string DeviceID = 3;
+
 }
 
 message SnapShot {
