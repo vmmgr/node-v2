@@ -76,7 +76,7 @@ func (s *server) AddStorage(in *pb.StorageData, stream pb.Node_AddStorageServer)
 	return nil
 }
 
-func (s *server) DeleteStorage(ctx context.Context, in *pb.StorageData) (*pb.Result, error) {
+func (s *server) DeleteStorage(_ context.Context, in *pb.StorageData) (*pb.Result, error) {
 	fmt.Println("----------DeleteVM-----")
 	log.Printf("Receive VMID: %v", in.GetID())
 
@@ -86,7 +86,7 @@ func (s *server) DeleteStorage(ctx context.Context, in *pb.StorageData) (*pb.Res
 	return &pb.Result{Status: true, Info: "ok"}, nil
 }
 
-func (s *server) UpdateStorage(ctx context.Context, in *pb.StorageData) (*pb.Result, error) {
+func (s *server) UpdateStorage(_ context.Context, in *pb.StorageData) (*pb.Result, error) {
 	fmt.Println("----------UpdateStorage-----")
 	log.Printf("Receive VMID: %v", in.GetID())
 
@@ -97,7 +97,7 @@ func (s *server) UpdateStorage(ctx context.Context, in *pb.StorageData) (*pb.Res
 	}
 }
 
-func (s *server) GetStorage(ctx context.Context, in *pb.StorageData) (*pb.StorageData, error) {
+func (s *server) GetStorage(_ context.Context, in *pb.StorageData) (*pb.StorageData, error) {
 	fmt.Println("----------GetStorage-----")
 	log.Printf("Receive VMID: %v", in.GetID())
 

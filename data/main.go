@@ -1,26 +1,26 @@
 package data
 
 import (
-	"fmt"
-	pb "github.com/yoneyan/vm_mgr/proto/proto-go"
+	pb "github.com/vmmgr/node/proto/proto-go"
 	"google.golang.org/grpc"
+	"log"
 	"net"
 )
 
 const port = ":50100"
 
 type server struct {
-	pb.UnimplementedGrpcServer
+	pb.UnimplementedNodeServer
 }
 
 func Server() {
 	lis, err := net.Listen("tcp", port)
 	if err != nil {
-		fmt.Println("failed to listen: %v", err)
+		log.Printf("failed to listen: %v\n", err)
 	}
 	s := grpc.NewServer()
-	pb.RegisterGrpcServer(s, &server{})
+	pb.RegisterNodeServer(s, &server{})
 	if err := s.Serve(lis); err != nil {
-		fmt.Println("failed to serve: %v", err)
+		log.Printf("failed to serve: %v\n", err)
 	}
 }

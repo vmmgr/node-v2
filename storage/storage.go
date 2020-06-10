@@ -105,6 +105,7 @@ func DeleteStorage(data *pb.StorageData) result {
 	return result{Info: "OK", Err: nil}
 }
 
+// #4 Test
 func UpdateStorage(data *pb.StorageData) result {
 	var path string
 	dbData, err := db.SearchDBStorage(db.Storage{ID: int(data.GetID())})
