@@ -64,8 +64,9 @@ message VMData{
   string ISO = 7;
   repeated StorageData Storage = 8;
   repeated NetData Net = 9;
-  repeated PCIData PCIData = 10;
-  bool AutoStart = 11;
+  repeated NICData NIC = 10;
+  repeated PCIData PCIData = 11;
+  bool AutoStart = 12;
 }
 
 message StorageData{
