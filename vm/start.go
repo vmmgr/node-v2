@@ -150,7 +150,7 @@ func generateStorageCmd(d data) []string {
 
 func generateNICCmd(data db.VM) []string {
 	var args []string
-	id := strings.Split(data.Net, ",")
+	id := strings.Split(data.NIC, ",")
 	for _, tmp := range id {
 		nid, _ := strconv.Atoi(tmp)
 		if nic, err := db.SearchDBNIC(db.NIC{ID: nid}); err == nil {
