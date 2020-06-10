@@ -1,8 +1,9 @@
 package cmd
 
 import (
-	"fmt"
 	"github.com/vmmgr/node/data"
+	"github.com/vmmgr/node/vm"
+	"log"
 
 	"github.com/spf13/cobra"
 )
@@ -12,9 +13,11 @@ var startCmd = &cobra.Command{
 	Short: "start client server",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		//vm.StartupProcess()
+		if err := vm.StartUPVM(); err != nil {
+			log.Println("Error: vm auto start failed...")
+		}
 		data.Server()
-		fmt.Println("end")
+		log.Println("end")
 	},
 }
 
