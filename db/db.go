@@ -18,7 +18,7 @@ type VM struct {
 	CPU       int
 	Mem       int
 	Storage   string
-	Net       string
+	NIC       string
 	PCI       string
 	Status    int
 	AutoStart bool
@@ -30,7 +30,7 @@ type Storage struct {
 	UpdatedAt time.Time
 	GroupID   int
 	Name      string
-	Driver    int //0:virtio
+	Driver    int //1:virtio
 	Type      int //1:qcow2(default) 2:img
 	Mode      int //0~9:AutoPath 10:ManualPath
 	Path      string

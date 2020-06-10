@@ -4,11 +4,40 @@ import (
 	"fmt"
 	"github.com/mattn/go-pipeline"
 	"github.com/vmmgr/node/db"
-	"strconv"
-
-	//"github.com/yoneyan/vm_mgr/node/manage"
+	"github.com/vmmgr/node/etc"
 	"log"
+	"strconv"
 )
+
+func AllVMStopForce() error {
+	if vm, err := db.GetAllDBVM(); err != nil {
+		return err
+	} else {
+		for _, d := range vm {
+			if d.Status == 1 {
+				if err := vmStop(d.ID); err != nil {
+					log.Println("Error:VM Stop failed")
+				}
+			}
+		}
+	}
+	return nil
+}
+
+func AllVMShutdown() error {
+	if vm, err := db.GetAllDBVM(); err != nil {
+		return err
+	} else {
+		for _, d := range vm {
+			if d.Status == 1 {
+				if err := vmShutdown(d.ID); err != nil {
+					log.Println("Error:VM Stop failed")
+				}
+			}
+		}
+	}
+	return nil
+}
 
 func vmStop(id int) error {
 	if d, err := db.SearchDBVM(db.VM{ID: id}); err != nil {
@@ -44,4 +73,13 @@ func vmStop(id int) error {
 	} else {
 		return nil
 	}
+}
+
+func vmShutdown(id int) error {
+	log.Printf("Shutdown VM: %d\n", id)
+	if err := runQEMUMonitorCmd("system_powerdown", etc.SocketConnectionPath(id)); err != nil {
+		log.Println("Error: Shutdown Error!!")
+		return fmt.Errorf("Error: Shutdown Error ")
+	}
+	return nil
 }

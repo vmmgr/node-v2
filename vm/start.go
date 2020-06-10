@@ -16,6 +16,21 @@ type data struct {
 	iso  string
 }
 
+func StartUPVM() error {
+	if vm, err := db.GetAllDBVM(); err != nil {
+		return err
+	} else {
+		for _, d := range vm {
+			if d.AutoStart == true {
+				if err := startVM(data{id: d.ID}); err != nil {
+					return err
+				}
+			}
+		}
+		return nil
+	}
+}
+
 func startVM(d data) error {
 	log.Println("-----StartVMProcess-----")
 	db, err := db.SearchDBVM(db.VM{ID: d.id})
