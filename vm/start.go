@@ -99,6 +99,9 @@ func generateVMCmd(d data) []string {
 		// Memory
 		"-m",
 		strconv.Itoa(d.vmDB.Mem),
+		// Monitor
+		"-monitor",
+		etc.SocketGenerate(d.id),
 	}
 
 	//Storage
