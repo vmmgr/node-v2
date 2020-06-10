@@ -3,79 +3,83 @@ package vm
 import (
 	"fmt"
 	"github.com/mattn/go-pipeline"
-	"github.com/yoneyan/vm_mgr/node/db"
-	"github.com/yoneyan/vm_mgr/node/manage"
+	"github.com/vmmgr/node/db"
+	"github.com/vmmgr/node/etc"
+	"log"
+	"strconv"
 )
 
-func VMStop(id int) (string, bool) {
-	if manage.VMExistsID(id) == false {
-		fmt.Println("VMID Error")
-		return "Not Found VMID", false
-	}
-
-	result, err := db.VMDBGetData(id)
-	if result.Status == 1 {
-		fmt.Println("Power On State")
-	} else if result.Status == 0 {
-		fmt.Println("Power Off State")
+func AllVMStopForce() error {
+	if vm, err := db.GetAllDBVM(); err != nil {
+		return err
 	} else {
-		fmt.Println("Power State Error")
-		return "Power State Error!!", false
+		for _, d := range vm {
+			if d.Status == 1 {
+				if err := vmStop(d.ID); err != nil {
+					log.Println("Error:VM Stop failed")
+				}
+			}
+		}
 	}
+	return nil
+}
 
-	fmt.Println(result)
-	if err != nil {
-		fmt.Println("Error!!")
+func AllVMShutdown() error {
+	if vm, err := db.GetAllDBVM(); err != nil {
+		return err
+	} else {
+		for _, d := range vm {
+			if d.Status == 1 {
+				if err := vmShutdown(d.ID); err != nil {
+					log.Println("Error:VM Stop failed")
+				}
+			}
+		}
 	}
+	return nil
+}
 
-	fmt.Println(result.Name)
+func vmStop(id int) error {
+	if d, err := db.SearchDBVM(db.VM{ID: id}); err != nil {
+		return fmt.Errorf("VM is not found")
+	} else {
+		if d.Status == 0 {
+			log.Println("Power Off State")
+		} else if d.Status == 1 {
+			log.Println("Power On State")
+		} else {
+			log.Println("Error: Power State")
+			return fmt.Errorf("Error: Power state ")
+		}
+	}
 
 	//ps axf | grep test|grep qemu  | grep -v grep | awk '{print "kill -9 " $1}' | sudo sh
-	fmt.Println("-----VMStop Command-----")
-	out, err := pipeline.CombinedOutput(
+	log.Println("-----VMStop Command-----")
+	if out, err := pipeline.CombinedOutput(
 		[]string{"ps", "axf"},
-		[]string{"grep", result.Name + ".sock"},
+		[]string{"grep", strconv.Itoa(id) + ".sock"},
 		[]string{"grep", "qemu"},
 		[]string{"grep", "-v", "grep"},
 		[]string{"awk", "{print \"kill -9 \" $1}"},
 		[]string{"sudo", "sh"},
-	)
-	if err != nil {
-		fmt.Println("already stopped")
-	}
-	fmt.Printf("%s", out)
-
-	if db.VMDBStatusUpdate(id, 0) {
-		fmt.Println("Power Off state")
+	); err != nil {
+		log.Println("already stop")
 	} else {
-		fmt.Println("state Error!!")
+		log.Printf("%s \n", out)
 	}
-	return "ok", true
+
+	if r := db.UpdateDBVM(db.VM{ID: id, Status: 0}); r.Error != nil {
+		return fmt.Errorf("Error: DB Error. but vm stopped ")
+	} else {
+		return nil
+	}
 }
 
-func StopProcess() {
-	data := db.VMDBGetAll()
-	var status []int
-	for i, _ := range data {
-		fmt.Printf("Status 0  VMID: %d", data[i].ID)
-		if data[i].Status == 1 {
-			status = append(status, data[i].ID)
-		}
+func vmShutdown(id int) error {
+	log.Printf("Shutdown VM: %d\n", id)
+	if err := runQEMUMonitorCmd("system_powerdown", etc.SocketConnectionPath(id)); err != nil {
+		log.Println("Error: Shutdown Error!!")
+		return fmt.Errorf("Error: Shutdown Error ")
 	}
-	fmt.Printf("AutoStartVMID: ")
-	fmt.Println(status)
-
-	for i, _ := range status {
-		info, result := VMStop(status[i])
-		{
-			if result == false {
-				fmt.Println(info)
-				fmt.Printf("Failed stop VMID: %d", i)
-			}
-			fmt.Printf("Start VMID: %d", i)
-		}
-		fmt.Println()
-
-		fmt.Println("Start process is end!!")
-	}
+	return nil
 }

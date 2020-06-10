@@ -9,61 +9,60 @@ func AddDBStorage(data Storage) result {
 
 	if err := db.Error; err != nil {
 		db.Rollback()
-		return result{Result: false, ID: 0}
-	} else {
-		return result{Result: true, ID: data.ID}
+		return result{Error: err}
 	}
+	return result{Error: nil, ID: data.ID}
 }
 
 //Delete
-func DeleteDBStorage(data Storage) bool {
+func DeleteDBStorage(data Storage) result {
 	db := InitDB()
 	defer db.Close()
 	db.Delete(&data)
 
 	if err := db.Error; err != nil {
 		db.Rollback()
-		return false
+		return result{Error: err}
 	} else {
-		return true
+		return result{Error: nil, ID: data.ID}
 	}
 }
 
 //Update
-func UpdateDBStorage(data Storage) bool {
+func UpdateDBStorage(data Storage) result {
 	db := InitDB()
 	defer db.Close()
 	db.Model(&data).Updates(Storage{GroupID: data.GroupID, Name: data.Name, Driver: data.Driver, MaxSize: data.MaxSize, Lock: data.Lock})
 
 	if err := db.Error; err != nil {
 		db.Rollback()
-		return false
-	} else {
-		return true
+		return result{Error: err}
 	}
+	return result{Error: nil, ID: data.ID}
 }
 
 //Get
-func GetAllDBStorage() []Storage {
+func SearchDBStorage(data Storage) (Storage, error) {
+	db := InitDB()
+	defer db.Close()
+	var result Storage
+
+	db.Where("ID = ?", data.ID).First(&result)
+	if err := db.Error; err != nil {
+		return Storage{}, err
+	}
+	return result, nil
+}
+
+func GetAllDBStorage() ([]Storage, error) {
 	db := InitDB()
 	defer db.Close()
 
 	var vm []Storage
 	db.Find(&vm)
-	return vm
-}
 
-func SearchDBStorage(data Storage) Storage {
-	db := InitDB()
-	defer db.Close()
-
-	var result Storage
-	//search StorageName and StorageID
-	if data.Name != "" {
-		db.Where("name = ?", data.Name).First(&result)
-	} else if data.ID != 0 { //初期値0であることが前提　確認の必要あり
-		db.Where("ID = ?", data.ID).First(&result)
+	if err := db.Error; err != nil {
+		return []Storage{}, err
 	}
-
-	return result
+	return vm, nil
 }

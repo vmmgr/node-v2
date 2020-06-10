@@ -1,12 +1,9 @@
 package db
 
-import "fmt"
-
 //Add
-func AddDBVM(data VM) result {
+func AddDBNIC(data NIC) result {
 	db := InitDB()
 	defer db.Close()
-	//db.Table("group").CreateTable(&data)
 	db.Create(&data)
 
 	if err := db.Error; err != nil {
@@ -17,54 +14,53 @@ func AddDBVM(data VM) result {
 }
 
 //Delete
-func DeleteDBVM(data VM) result {
+func DeleteDBNIC(data NIC) result {
 	db := InitDB()
 	defer db.Close()
 	db.Delete(&data)
 
 	if err := db.Error; err != nil {
 		db.Rollback()
-		return result{Error: err, ID: 0}
+		return result{Error: err}
 	}
-	return result{Error: nil, ID: data.ID}
+	return result{Error: nil}
 }
 
 //Update
-func UpdateDBVM(data VM) result {
+func UpdateDBNIC(data NIC) result {
 	db := InitDB()
 	defer db.Close()
-	db.Model(&data).Updates(VM{CPU: data.CPU, Mem: data.Mem, Status: data.Status, AutoStart: data.AutoStart})
+	db.Model(&data).Updates(NIC{Name: data.Name, Driver: data.Driver, GroupID: data.GroupID, NetID: data.NetID, MacAddress: data.MacAddress, Lock: data.Lock})
 
 	if err := db.Error; err != nil {
 		db.Rollback()
 		return result{Error: err}
 	}
-	return result{Error: nil, ID: data.ID}
+	return result{Error: nil}
 }
 
 //Get
-
-func SearchDBVM(data VM) (VM, error) {
+func SearchDBNIC(data NIC) (NIC, error) {
 	db := InitDB()
 	defer db.Close()
+	var result NIC
 
-	var result VM
 	db.Where("ID = ?", data.ID).First(&result)
 
 	if err := db.Error; err != nil {
-		return data, fmt.Errorf("Error: DB Error ")
+		return NIC{}, err
 	}
 	return result, nil
 }
 
-func GetAllDBVM() ([]VM, error) {
+func GetAllDBNIC() ([]NIC, error) {
 	db := InitDB()
 	defer db.Close()
-	var vm []VM
-	db.Find(&vm)
 
+	var net []NIC
+	db.Find(&net)
 	if err := db.Error; err != nil {
-		return []VM{}, err
+		return []NIC{}, err
 	}
-	return vm, nil
+	return net, nil
 }

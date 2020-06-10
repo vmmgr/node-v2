@@ -8,61 +8,59 @@ func AddDBNet(data Net) result {
 
 	if err := db.Error; err != nil {
 		db.Rollback()
-		return result{Result: false, ID: 0}
-	} else {
-		return result{Result: true, ID: data.ID}
+		return result{Error: err}
 	}
+	return result{Error: nil, ID: data.ID}
 }
 
 //Delete
-func DeleteDBNet(data Net) bool {
+func DeleteDBNet(data Net) result {
 	db := InitDB()
 	defer db.Close()
 	db.Delete(&data)
 
 	if err := db.Error; err != nil {
 		db.Rollback()
-		return false
-	} else {
-		return true
+		return result{Error: err}
 	}
+	return result{Error: nil}
 }
 
 //Update
-func UpdateDBNet(data Net) bool {
+func UpdateDBNet(data Net) result {
 	db := InitDB()
 	defer db.Close()
-	db.Model(&data).Updates(Net{Name: data.Name, Driver: data.Driver, Vlan: data.Vlan, Status: data.Status})
+	db.Model(&data).Updates(Net{Name: data.Name, GroupID: data.GroupID, VLAN: data.VLAN, Lock: data.Lock})
 
 	if err := db.Error; err != nil {
 		db.Rollback()
-		return false
-	} else {
-		return true
+		return result{Error: err}
 	}
+	return result{Error: nil}
 }
 
 //Get
-func GetAllDBNet() []Net {
+func SearchDBNet(data Net) (Net, error) {
 	db := InitDB()
 	defer db.Close()
+	var result Net
 
-	var vm []Net
-	db.Find(&vm)
-	return vm
+	db.Where("ID = ?", data.ID).First(&result)
+
+	if err := db.Error; err != nil {
+		return Net{}, err
+	}
+	return result, nil
 }
 
-func SearchDBNet(data Net) Net {
+func GetAllDBNet() ([]Net, error) {
 	db := InitDB()
 	defer db.Close()
 
-	var result Net
-	//search NetName and NetID
-	if data.Name != "" {
-		db.Where("name = ?", data.Name).First(&result)
-	} else if data.ID != 0 { //初期値0であることが前提　確認の必要あり
-		db.Where("ID = ?", data.ID).First(&result)
+	var net []Net
+	db.Find(&net)
+	if err := db.Error; err != nil {
+		return []Net{}, err
 	}
-
-	return result
+	return net, nil
 }

@@ -18,7 +18,8 @@ type VM struct {
 	CPU       int
 	Mem       int
 	Storage   string
-	Net       string
+	NIC       string
+	PCI       string
 	Status    int
 	AutoStart bool
 }
@@ -29,8 +30,8 @@ type Storage struct {
 	UpdatedAt time.Time
 	GroupID   int
 	Name      string
-	Driver    int //0:virtio
-	Type      int //0:qcow2(default) 1:img
+	Driver    int //1:virtio
+	Type      int //1:qcow2(default) 2:img
 	Mode      int //0~9:AutoPath 10:ManualPath
 	Path      string
 	MaxSize   int
@@ -38,20 +39,30 @@ type Storage struct {
 }
 
 type Net struct {
+	ID        int `gorm:primary_key`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	GroupID   string
+	Name      string
+	VLAN      int
+	Lock      int
+}
+
+type NIC struct {
 	ID         int `gorm:primary_key`
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
-	GroupID    string
+	GroupID    int
+	NetID      int
 	Name       string
-	Driver     int //0:virtio 1:e1000
+	Driver     int //1:virtio 2:e1000
 	MacAddress string
-	Vlan       int
-	Status     int
+	Lock       int
 }
 
 type result struct {
-	Result bool
-	ID     int
+	ID    int
+	Error error
 }
 
 func InitCreateDB() {
@@ -74,6 +85,7 @@ func initSQLite3() *gorm.DB {
 	db.AutoMigrate(&VM{})
 	db.AutoMigrate(&Storage{})
 	db.AutoMigrate(&Net{})
+	db.AutoMigrate(&NIC{})
 
 	return db
 }

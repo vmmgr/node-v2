@@ -16,7 +16,7 @@ service Node {
   }
   rpc GetAllVM (Null) returns (stream VMData){
   }
-  rpc AddStorage(StorageData) returns (Result){
+  rpc AddStorage(StorageData) returns (stream Result){
   }
   rpc DeleteStorage(StorageData) returns (Result){
   }
@@ -36,6 +36,16 @@ service Node {
   }
   rpc GetAllNet (Null) returns (stream NetData){
   }
+  rpc AddNIC(NICData) returns (Result){
+  }
+  rpc DeleteNIC(NICData) returns (Result){
+  }
+  rpc UpdateNIC(NICData) returns (Result){
+  }
+  rpc GetNIC (NICData) returns (NICData){
+  }
+  rpc GetAllNIC (Null) returns (stream NICData){
+  }
   rpc StopNode(Null)returns (Result){
   }
 }
@@ -48,31 +58,54 @@ message VMData{
   int64 ID = 1;
   string Name = 2;
   int64 GroupID = 3;
-  int32 CPU = 4;
-  int32 Mem = 5;
-  string ISO = 6;
-  repeated StorageData Storage = 7;
-  repeated NetData Net = 8;
-  bool AutoStart = 9;
+  int32 CPU = 4; //core
+  int32 Mem = 5; //MB
+  int32 Boot = 6; //0~9:HDDBoot[0~9] 10:CDROMBoot
+  string ISO = 7;
+  repeated StorageData Storage = 8;
+  repeated NetData Net = 9;
+  repeated NICData NIC = 10;
+  repeated PCIData PCIData = 11;
+  bool AutoStart = 12;
 }
 
 message StorageData{
   int64 ID = 1;
-  int64 GroupID = 2;
-  int32 Driver = 3;
-  int32 Mode = 4; //0~9:AutoMode 10:ManualMode
-  string Path = 5; //Only Manual Mode
-  int64 MaxSize = 6;
-  repeated SnapShot SnapShot = 7;
-  bool Lock = 8;
+  string Name = 2;
+  int64 GroupID = 3;
+  int32 Driver = 4; //1:virtio
+  int32 Mode = 5; //1~9:AutoMode 10:ManualMode
+  string Path = 6; //Only Manual Mode
+  int64 MaxSize = 7;
+  repeated SnapShot SnapShot = 8;
+  string Image = 9; //image path
+  bool Lock = 10;
 }
 
 message NetData{
   int64 ID = 1;
-  int64 GroupID = 2;
-  int32 Driver = 3;
+  string Name = 2;
+  repeated int64 GroupID = 3;
   int32 VLAN = 4;
-  bool Lock = 5;
+  int32 Option = 5; //1:Add 2:Delete
+  bool Lock = 6;
+}
+
+message NICData{
+  int64 ID = 1;
+  string Name = 2;
+  int64 GroupID = 3;
+  int64 NetID = 4;
+  string MacAddress = 5;
+  int32 Driver = 6;
+  bool Lock = 7;
+}
+
+message PCIData{
+  int64 ID = 1;
+  string Name = 2;
+  string DeviceID = 3;
+
 }
 
 message SnapShot {
