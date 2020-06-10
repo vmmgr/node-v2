@@ -12,3 +12,7 @@
 (例)  
 1-0-TestVM  
 -> GroupID(1),Option(0),VMName(TestVM)
+
+
+### サポートOS
+* Ubuntu20.04 LTS
