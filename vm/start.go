@@ -3,8 +3,10 @@ package vm
 import (
 	"fmt"
 	"github.com/vmmgr/node/db"
+	"github.com/vmmgr/node/etc"
 	"log"
 	"strconv"
+	"strings"
 )
 
 type data struct {
@@ -28,21 +30,21 @@ func startVM(d data) error {
 		return fmt.Errorf("VM status is error!! status: %d ", db.Status)
 	}
 
-	if err := runQEMUCmd(generateVMCmd(db, d.boot)); err != nil {
+	if err := runQEMUCmd(generateVMCmd(d)); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func generateVMCmd(data db.VM, boot int) []string {
+func generateVMCmd(d data) []string {
 	var b string
 	//boot
-	if boot == 0 {
+	if d.boot == 0 {
 		b = "order=c"
-	} else if boot == 1 {
+	} else if d.boot == 1 {
 		b = "order=d"
-	} else if boot == 10 {
+	} else if d.boot == 10 {
 		b = "menu=on,strict=on"
 	}
 
@@ -54,9 +56,9 @@ func generateVMCmd(data db.VM, boot int) []string {
 		"-enable-kvm",
 
 		"-uuid",
-		strconv.Itoa(data.ID) + "-" + data.Name,
+		strconv.Itoa(d.vmDB.ID) + "-" + d.vmDB.Name,
 		"-name",
-		strconv.Itoa(data.ID) + "-" + data.Name,
+		strconv.Itoa(d.vmDB.ID) + "-" + d.vmDB.Name,
 		"-msg",
 		"timestamp=on",
 
@@ -64,7 +66,7 @@ func generateVMCmd(data db.VM, boot int) []string {
 		b,
 		// VNC
 		"-vnc",
-		fmt.Sprintf("0.0.0.0:%data,websocket=%data", data.ID, data.ID+7000),
+		fmt.Sprintf("0.0.0.0:%data,websocket=%data", d.vmDB.ID, d.vmDB.ID+7000),
 
 		// clock
 		"-rtc",
@@ -75,13 +77,82 @@ func generateVMCmd(data db.VM, boot int) []string {
 
 		// CPU
 		"-smp",
-		fmt.Sprintf("%data,sockets=1,cores=%data,threads=1", data.CPU, data.CPU),
+		fmt.Sprintf("%data,sockets=1,cores=%data,threads=1", d.vmDB.CPU, d.vmDB.CPU),
 		"-cpu",
 		"host",
 
 		// Memory
 		"-m",
-		strconv.Itoa(data.Mem),
+		strconv.Itoa(d.vmDB.Mem),
+	}
+
+	//Storage
+	for _, tmp := range generateStorageCmd(d) {
+		args = append(args, tmp)
+	}
+
+	//NIC
+	for _, tmp := range generateNICCmd(d.vmDB) {
+		args = append(args, tmp)
+	}
+
+	return args
+}
+
+func generateStorageCmd(d data) []string {
+	var args []string
+	index := 0
+
+	//ISO
+	if d.iso != "" {
+		iso := strings.Split(d.iso, ",")
+		for _, a := range iso {
+			args = append(args, "-drive")
+			args = append(args, "file="+a+",index="+strconv.Itoa(index)+",media=cdrom")
+			index++
+		}
+	}
+
+	//DISK
+	id := strings.Split(d.vmDB.Storage, ",")
+	for _, tmp := range id {
+		sid, _ := strconv.Atoi(tmp)
+		if storage, err := db.SearchDBStorage(db.Storage{ID: sid}); err == nil {
+			//virtio
+			if storage.Type == 1 {
+				args = append(args, "-drive")
+				if storage.Type > 10 {
+					args = append(args, "file="+storage.Path+",index="+strconv.Itoa(index)+",media=disk,if=virtio")
+				} else {
+					args = append(args, "file="+etc.GetDiskPath(storage.Type)+"/"+strconv.Itoa(storage.ID)+",index="+strconv.Itoa(index)+",media=disk,if=virtio")
+				}
+			}
+			index++
+		}
+	}
+	return args
+}
+
+func generateNICCmd(data db.VM) []string {
+	var args []string
+	id := strings.Split(data.Net, ",")
+	for _, tmp := range id {
+		nid, _ := strconv.Atoi(tmp)
+		if nic, err := db.SearchDBNIC(db.NIC{ID: nid}); err == nil {
+			net, err := db.SearchDBNet(db.Net{ID: nic.NetID})
+			if err != nil {
+				break
+			}
+			if nic.Driver == 1 {
+				//virtio
+				args = append(args, "-nic")
+				args = append(args, "bridge,br=br"+strconv.Itoa(net.VLAN)+",mac="+nic.MacAddress+",model=virtio")
+			} else if nic.Driver == 2 {
+				//e1000
+				args = append(args, "-nic")
+				args = append(args, "bridge,br=br"+strconv.Itoa(net.VLAN)+",mac="+nic.MacAddress+",model=e1000")
+			}
+		}
 	}
 
 	return args
