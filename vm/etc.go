@@ -6,7 +6,7 @@ import (
 	"log"
 )
 
-func vmRestart(id int) error {
+func vmReset(id int) error {
 	log.Printf("Reset VM: %d\n", id)
 	if err := runQEMUMonitorCmd("system_reset", etc.SocketConnectionPath(id)); err != nil {
 		log.Println("Error: Reset Error!!")
