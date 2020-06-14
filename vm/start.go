@@ -21,8 +21,14 @@ func StartUPVM() error {
 		return err
 	} else {
 		for _, d := range vm {
+			//Statusが0であることが確約済みの場合
+			//if d.AutoStart == true && d.Status == 0{
 			if d.AutoStart == true {
-				if err := startVM(data{id: d.ID}); err != nil {
+				if err := runQEMUCmd(generateVMCmd(data{
+					id:   d.ID,
+					boot: 0,
+					vmDB: d,
+				})); err != nil {
 					return err
 				}
 			}
@@ -45,7 +51,11 @@ func startVM(d data) error {
 		return fmt.Errorf("VM status is error!! status: %d ", db.Status)
 	}
 
-	if err := runQEMUCmd(generateVMCmd(d)); err != nil {
+	if err := runQEMUCmd(generateVMCmd(data{
+		id:   d.id,
+		boot: d.boot,
+		vmDB: db,
+	})); err != nil {
 		return err
 	}
 
