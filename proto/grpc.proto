@@ -10,8 +10,6 @@ service Node {
   }
   rpc UpdateVM (VMData) returns (Result){
   }
-  rpc StatusVM(VMStatus) returns (Result){
-  }
   rpc GetVM (VMData) returns (VMData){
   }
   rpc GetAllVM (Null) returns (stream VMData){
@@ -67,6 +65,11 @@ message VMData{
   repeated NICData NIC = 10;
   repeated PCIData PCIData = 11;
   bool AutoStart = 12;
+  int32 Status = 13; //0:Start 1:Stop 2:Shutdown 3:Restart 4:HardReset 5:Pause 6:Resume 10:SnapShot
+  int64 Mode = 14; //0:Status 1:VMUpdateNow 2:VMUpdateAfter
+  int64 option0 = 15;
+  string option1 = 16;
+  string option2 = 17;
 }
 
 message StorageData{
