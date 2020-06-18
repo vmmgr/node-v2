@@ -19,8 +19,8 @@ func AddVM(data *pb.VMData) result {
 }
 
 func DeleteVM(data *pb.VMData) result {
-	if err := deleteVMProcess(int(data.GetID())); err != nil {
-		return result{Err: err}
+	if err := deleteVMProcess(int(data.GetID() % 100000)); err != nil {
+		return result{Info: "NG", Err: err}
 	}
 	return result{Info: "OK", Err: nil}
 }
@@ -28,7 +28,7 @@ func DeleteVM(data *pb.VMData) result {
 func UpdateVM(data *pb.VMData) result {
 	//|Model| 0:Status 1:VMUpdateNow 2:VMUpdateAfter
 	var info string
-	id := data.GetID()
+	id := data.GetID() % 100000
 	boot := data.GetBoot()
 	//mode status
 	if data.GetMode() == 0 {

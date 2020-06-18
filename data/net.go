@@ -26,7 +26,7 @@ func (s *server) AddNet(ctx context.Context, in *pb.NetData) (*pb.Result, error)
 }
 
 func (s *server) DeleteNet(ctx context.Context, in *pb.NetData) (*pb.Result, error) {
-	fmt.Println("----------DeleteVM-----")
+	log.Println("----------DeleteVM-----")
 	log.Printf("Receive ID: %v", in.GetID())
 
 	if result := net.DeleteNet(in); result.Err != nil {
@@ -36,7 +36,7 @@ func (s *server) DeleteNet(ctx context.Context, in *pb.NetData) (*pb.Result, err
 }
 
 func (s *server) UpdateNet(ctx context.Context, in *pb.NetData) (*pb.Result, error) {
-	fmt.Println("----------UpdateNet-----")
+	log.Println("----------UpdateNet-----")
 	log.Printf("Receive ID: %v", in.GetID())
 
 	if result := net.UpdateNet(in); result.Err != nil {
@@ -47,22 +47,22 @@ func (s *server) UpdateNet(ctx context.Context, in *pb.NetData) (*pb.Result, err
 }
 
 func (s *server) GetNet(ctx context.Context, in *pb.NetData) (*pb.NetData, error) {
-	fmt.Println("----------GetNet-----")
+	log.Println("----------GetNet-----")
 	log.Printf("Receive ID: %v", in.GetID())
 
 	if result, err := db.SearchDBNet(db.Net{ID: int(in.GetID())}); err != nil {
 		return &pb.NetData{}, err
 	} else {
-		var gid []int64
+		var gid []uint64
 		for _, a := range strings.Split(result.GroupID, ",") {
 			tmp, _ := strconv.Atoi(a)
-			gid = append(gid, int64(tmp))
+			gid = append(gid, uint64(tmp))
 		}
 		return &pb.NetData{
-			ID:      int64(result.ID),
+			ID:      uint64(result.ID),
 			Name:    result.Name,
 			GroupID: gid,
-			VLAN:    int32(result.VLAN),
+			VLAN:    uint32(result.VLAN),
 			Lock:    result.Lock == 1,
 		}, nil
 	}
@@ -77,16 +77,16 @@ func (s *server) GetAllNet(_ *pb.Null, stream pb.Node_GetAllNetServer) error {
 	} else {
 		log.Println(result)
 		for _, data := range result {
-			var gid []int64
+			var gid []uint64
 			for _, a := range strings.Split(data.GroupID, ",") {
 				tmp, _ := strconv.Atoi(a)
-				gid = append(gid, int64(tmp))
+				gid = append(gid, uint64(tmp))
 			}
 			if err := stream.Send(&pb.NetData{
-				ID:      int64(data.ID),
+				ID:      uint64(data.ID),
 				Name:    data.Name,
 				GroupID: gid,
-				VLAN:    int32(data.VLAN),
+				VLAN:    uint32(data.VLAN),
 				Lock:    data.Lock == 1,
 			}); err != nil {
 				return err

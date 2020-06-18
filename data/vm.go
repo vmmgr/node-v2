@@ -31,9 +31,12 @@ func (s *server) AddVM(_ context.Context, in *pb.VMData) (*pb.Result, error) {
 }
 
 func (s *server) DeleteVM(_ context.Context, in *pb.VMData) (*pb.Result, error) {
-	fmt.Println("----------DeleteVM-----")
+	log.Println("----------DeleteVM-----")
 	log.Printf("Receive ID: %v", in.GetID())
 
+	if r, _ := db.SearchDBVM(db.VM{ID: int(in.GetID() % 100000)}); r.GroupID != int(in.GroupID) {
+		return &pb.Result{Status: false, Info: "NG"}, nil
+	}
 	if result := vm.DeleteVM(in); result.Err != nil {
 		return &pb.Result{Status: false, Info: result.Info + "ErrorLog: " + fmt.Sprint(result.Err)}, nil
 	}
@@ -41,9 +44,12 @@ func (s *server) DeleteVM(_ context.Context, in *pb.VMData) (*pb.Result, error) 
 }
 
 func (s *server) UpdateVM(_ context.Context, in *pb.VMData) (*pb.Result, error) {
-	fmt.Println("----------UpdateVM-----")
+	log.Println("----------UpdateVM-----")
 	log.Printf("Receive ID: %v", in.GetID())
 
+	if r, _ := db.SearchDBVM(db.VM{ID: int(in.GetID() % 100000)}); r.GroupID != int(in.GroupID) {
+		return &pb.Result{Status: false, Info: "NG"}, nil
+	}
 	if result := vm.UpdateVM(in); result.Err != nil {
 		return &pb.Result{Status: false, Info: fmt.Sprint(result.Err)}, nil
 	} else {
@@ -52,7 +58,7 @@ func (s *server) UpdateVM(_ context.Context, in *pb.VMData) (*pb.Result, error) 
 }
 
 func (s *server) GetVM(_ context.Context, in *pb.VMData) (*pb.VMData, error) {
-	fmt.Println("----------GetVM-----")
+	log.Println("----------GetVM-----")
 	log.Printf("Receive ID: %v", in.GetID())
 	var storage []*pb.StorageData
 	var nic []*pb.NICData
@@ -63,11 +69,11 @@ func (s *server) GetVM(_ context.Context, in *pb.VMData) (*pb.VMData, error) {
 	} else {
 		for _, tmp := range strings.Split(data.Storage, ",") {
 			value, _ := strconv.Atoi(tmp)
-			storage = append(storage, &pb.StorageData{ID: int64(value)})
+			storage = append(storage, &pb.StorageData{ID: uint64(value)})
 		}
 		for _, tmp := range strings.Split(data.NIC, ",") {
 			value, _ := strconv.Atoi(tmp)
-			nic = append(nic, &pb.NICData{ID: int64(value)})
+			nic = append(nic, &pb.NICData{ID: uint64(value)})
 		}
 		//for _, tmp := range strings.Split(data.PCI, ",") {
 		//	value, _ := strconv.Atoi(tmp)
@@ -75,11 +81,11 @@ func (s *server) GetVM(_ context.Context, in *pb.VMData) (*pb.VMData, error) {
 		//}
 
 		return &pb.VMData{
-			ID:      int64(data.ID),
+			ID:      uint64(data.ID),
 			Name:    data.Name,
-			GroupID: int64(data.GroupID),
-			CPU:     int32(data.CPU),
-			Mem:     int32(data.Mem),
+			GroupID: uint64(data.GroupID),
+			CPU:     uint32(data.CPU),
+			Mem:     uint32(data.Mem),
 			Storage: storage,
 			NIC:     nic,
 			//Net:     net,
@@ -102,22 +108,22 @@ func (s *server) GetAllVM(_ *pb.Null, stream pb.Node_GetAllVMServer) error {
 		for _, data := range result {
 			for _, tmp := range strings.Split(data.Storage, ",") {
 				value, _ := strconv.Atoi(tmp)
-				storage = append(storage, &pb.StorageData{ID: int64(value)})
+				storage = append(storage, &pb.StorageData{ID: uint64(value)})
 			}
 			for _, tmp := range strings.Split(data.NIC, ",") {
 				value, _ := strconv.Atoi(tmp)
-				nic = append(nic, &pb.NICData{ID: int64(value)})
+				nic = append(nic, &pb.NICData{ID: uint64(value)})
 			}
 			//for _, tmp := range strings.Split(data.PCI, ",") {
 			//	value, _ := strconv.Atoi(tmp)
-			//	pci = append(pci, &pb.PCIData{ID: int64(value)})
+			//	pci = append(pci, &pb.PCIData{ID: uint64(value)})
 			//}
 			if err := stream.Send(&pb.VMData{
-				ID:      int64(data.ID),
+				ID:      uint64(data.ID),
 				Name:    data.Name,
-				GroupID: int64(data.GroupID),
-				CPU:     int32(data.CPU),
-				Mem:     int32(data.Mem),
+				GroupID: uint64(data.GroupID),
+				CPU:     uint32(data.CPU),
+				Mem:     uint32(data.Mem),
 				Storage: storage,
 				NIC:     nic,
 				//Net:     net,

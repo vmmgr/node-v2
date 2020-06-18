@@ -24,7 +24,7 @@ func (s *server) AddNIC(ctx context.Context, in *pb.NICData) (*pb.Result, error)
 }
 
 func (s *server) DeleteNIC(ctx context.Context, in *pb.NICData) (*pb.Result, error) {
-	fmt.Println("----------DeleteVM-----")
+	log.Println("----------DeleteVM-----")
 	log.Printf("Receive ID: %v", in.GetID())
 
 	if result := nic.DeleteNIC(in); result.Err != nil {
@@ -34,7 +34,7 @@ func (s *server) DeleteNIC(ctx context.Context, in *pb.NICData) (*pb.Result, err
 }
 
 func (s *server) UpdateNIC(ctx context.Context, in *pb.NICData) (*pb.Result, error) {
-	fmt.Println("----------UpdateNIC-----")
+	log.Println("----------UpdateNIC-----")
 	log.Printf("Receive ID: %v", in.GetID())
 
 	if result := nic.UpdateNIC(in); result.Err != nil {
@@ -45,19 +45,19 @@ func (s *server) UpdateNIC(ctx context.Context, in *pb.NICData) (*pb.Result, err
 }
 
 func (s *server) GetNIC(ctx context.Context, in *pb.NICData) (*pb.NICData, error) {
-	fmt.Println("----------GetNIC-----")
+	log.Println("----------GetNIC-----")
 	log.Printf("Receive ID: %v", in.GetID())
 
 	if data, err := db.SearchDBNIC(db.NIC{ID: int(in.GetID())}); err != nil {
 		return &pb.NICData{}, err
 	} else {
 		return &pb.NICData{
-			ID:         int64(data.ID),
+			ID:         uint64(data.ID),
 			Name:       data.Name,
-			GroupID:    int64(data.GroupID),
-			NetID:      int64(data.GroupID),
+			GroupID:    uint64(data.GroupID),
+			NetID:      uint64(data.GroupID),
 			MacAddress: data.MacAddress,
-			Driver:     int32(data.Driver),
+			Driver:     uint32(data.Driver),
 			Lock:       data.Lock == 1,
 		}, nil
 	}
@@ -73,12 +73,12 @@ func (s *server) GetAllNIC(_ *pb.Null, stream pb.Node_GetAllNICServer) error {
 		log.Println(result)
 		for _, data := range result {
 			if err := stream.Send(&pb.NICData{
-				ID:         int64(data.ID),
+				ID:         uint64(data.ID),
 				Name:       data.Name,
-				GroupID:    int64(data.GroupID),
-				NetID:      int64(data.GroupID),
+				GroupID:    uint64(data.GroupID),
+				NetID:      uint64(data.GroupID),
 				MacAddress: data.MacAddress,
-				Driver:     int32(data.Driver),
+				Driver:     uint32(data.Driver),
 				Lock:       data.Lock == 1,
 			}); err != nil {
 				return err
