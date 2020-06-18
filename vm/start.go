@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-type data struct {
+type vmData struct {
 	id   int
 	boot int
 	vmDB db.VM
@@ -24,7 +24,7 @@ func StartUPVM() error {
 			//Statusが0であることが確約済みの場合
 			//if d.AutoStart == true && d.Status == 0{
 			if d.AutoStart == true {
-				if err := runQEMUCmd(generateVMCmd(data{
+				if err := runQEMUCmd(generateVMCmd(vmData{
 					id:   d.ID,
 					boot: 0,
 					vmDB: d,
@@ -37,7 +37,7 @@ func StartUPVM() error {
 	}
 }
 
-func startVM(d data) error {
+func startVM(d vmData) error {
 	log.Println("-----StartVMProcess-----")
 	db, err := db.SearchDBVM(db.VM{ID: d.id})
 	if err != nil {
@@ -51,7 +51,7 @@ func startVM(d data) error {
 		return fmt.Errorf("VM status is error!! status: %d ", db.Status)
 	}
 
-	if err := runQEMUCmd(generateVMCmd(data{
+	if err := runQEMUCmd(generateVMCmd(vmData{
 		id:   d.id,
 		boot: d.boot,
 		vmDB: db,
@@ -62,7 +62,7 @@ func startVM(d data) error {
 	return nil
 }
 
-func generateVMCmd(d data) []string {
+func generateVMCmd(d vmData) []string {
 	var b string
 	//boot
 	if d.boot == 0 {
@@ -91,7 +91,7 @@ func generateVMCmd(d data) []string {
 		b,
 		// VNC
 		"-vnc",
-		fmt.Sprintf("0.0.0.0:%data,websocket=%data", d.vmDB.ID, d.vmDB.ID+7000),
+		fmt.Sprintf("0.0.0.0:%vmData,websocket=%vmData", d.vmDB.ID, d.vmDB.ID+7000),
 
 		// clock
 		"-rtc",
@@ -102,7 +102,7 @@ func generateVMCmd(d data) []string {
 
 		// CPU
 		"-smp",
-		fmt.Sprintf("%data,sockets=1,cores=%data,threads=1", d.vmDB.CPU, d.vmDB.CPU),
+		fmt.Sprintf("%vmData,sockets=1,cores=%vmData,threads=1", d.vmDB.CPU, d.vmDB.CPU),
 		"-cpu",
 		"host",
 
@@ -127,7 +127,7 @@ func generateVMCmd(d data) []string {
 	return args
 }
 
-func generateStorageCmd(d data) []string {
+func generateStorageCmd(d vmData) []string {
 	var args []string
 	index := 0
 
