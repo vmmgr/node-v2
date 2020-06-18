@@ -53,77 +53,77 @@ message Null{
 }
 
 message VMData{
-  int64 ID = 1;
+  uint64 ID = 1;
   string Name = 2;
-  int64 GroupID = 3;
-  int32 CPU = 4; //core
-  int32 Mem = 5; //MB
-  int32 Boot = 6; //0~9:HDDBoot[0~9] 10:CDROMBoot
+  uint64 GroupID = 3;
+  uint32 CPU = 4; //core
+  uint32 Mem = 5; //MB
+  uint32 Boot = 6; //0~9:HDDBoot[0~9] 10:CDROMBoot
   string ISO = 7;
   repeated StorageData Storage = 8;
   repeated NetData Net = 9;
   repeated NICData NIC = 10;
   repeated PCIData PCIData = 11;
   bool AutoStart = 12;
-  int32 Status = 13; //0:Start 1:Stop 2:Shutdown 3:Restart 4:HardReset 5:Pause 6:Resume 10:SnapShot
-  int64 Mode = 14; //0:Status 1:VMUpdateNow 2:VMUpdateAfter
-  int64 option0 = 15;
+  uint32 Status = 13; //0:Start 1:Stop 2:Shutdown 3:Restart 4:HardReset 5:Pause 6:Resume 10:SnapShot
+  uint64 Mode = 14; //0:Status 1:VMUpdateNow 2:VMUpdateAfter
+  uint64 option0 = 15;
   string option1 = 16;
   string option2 = 17;
 }
 
 message StorageData{
-  int64 ID = 1;
+  uint64 ID = 1;
   string Name = 2;
-  int64 GroupID = 3;
-  int32 Driver = 4; //1:virtio
-  int32 Mode = 5; //1~9:AutoMode 10:ManualMode
+  uint64 GroupID = 3;
+  uint32 Driver = 4; //1:virtio
+  uint32 Mode = 5; //1~9:AutoMode 10:ManualMode
   string Path = 6; //Only Manual Mode
-  int64 MaxSize = 7;
+  uint64 MaxSize = 7;
   repeated SnapShot SnapShot = 8;
   string Image = 9; //image path
   bool Lock = 10;
 }
 
 message NetData{
-  int64 ID = 1;
+  uint64 ID = 1;
   string Name = 2;
-  repeated int64 GroupID = 3;
-  int32 VLAN = 4;
-  int32 Option = 5; //1:Add 2:Delete
+  repeated uint64 GroupID = 3;
+  uint32 VLAN = 4;
+  uint32 Option = 5; //1:Add 2:Delete
   bool Lock = 6;
 }
 
 message NICData{
-  int64 ID = 1;
+  uint64 ID = 1;
   string Name = 2;
-  int64 GroupID = 3;
-  int64 NetID = 4;
+  uint64 GroupID = 3;
+  uint64 NetID = 4;
   string MacAddress = 5;
-  int32 Driver = 6;
+  uint32 Driver = 6;
   bool Lock = 7;
 }
 
 message PCIData{
-  int64 ID = 1;
+  uint64 ID = 1;
   string Name = 2;
   string DeviceID = 3;
 
 }
 
 message SnapShot {
-  int64 ID = 1;
+  uint64 ID = 1;
   string Tag = 2;
-  int64 Size = 3;
+  uint64 Size = 3;
   string Date = 4;
 }
 
 message VMStatus{
-  int64 ID = 1;
-  int32 mode = 2; //0:Start 1:Stop 2:Shutdown 3:Restart 4:HardReset 5:Pause 6:Resume 10:SnapShot
-  int32 boot = 3; //0:DiskBoot 1:ISOBoot
+  uint64 ID = 1;
+  uint32 mode = 2; //0:Start 1:Stop 2:Shutdown 3:Restart 4:HardReset 5:Pause 6:Resume 10:SnapShot
+  uint32 boot = 3; //0:DiskBoot 1:ISOBoot
   string option1 = 4; //not used...
-  int64 option2 = 5; //snapshot ID
+  uint64 option2 = 5; //snapshot ID
 }
 
 message Result{
