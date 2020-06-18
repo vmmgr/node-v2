@@ -32,7 +32,7 @@ func AddNet(data *pb.NetData) result {
 }
 
 func DeleteNet(data *pb.NetData) result {
-	if dbData, err := db.SearchDBNet(db.Net{ID: int(data.GetID())}); err != nil {
+	if dbData, err := db.SearchDBNet(db.Net{ID: int(data.GetID() / 100000)}); err != nil {
 		return result{Err: fmt.Errorf("Error: failed read db ")}
 	} else if dbData.Lock != 0 {
 		return result{Err: fmt.Errorf("Error: Locked Net !! ")}
@@ -45,7 +45,7 @@ func DeleteNet(data *pb.NetData) result {
 }
 
 func UpdateNet(data *pb.NetData) result {
-	dbData, err := db.SearchDBNet(db.Net{ID: int(data.GetID())})
+	dbData, err := db.SearchDBNet(db.Net{ID: int(data.GetID() / 100000)})
 	if err != nil {
 		return result{Err: fmt.Errorf("Error: failed read db ")}
 	} else if dbData.Lock != 0 {

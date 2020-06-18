@@ -26,7 +26,7 @@ func AddNIC(data *pb.NICData) result {
 }
 
 func DeleteNIC(data *pb.NICData) result {
-	if dbData, err := db.SearchDBNIC(db.NIC{ID: int(data.GetID())}); err != nil {
+	if dbData, err := db.SearchDBNIC(db.NIC{ID: int(data.GetID() / 100000)}); err != nil {
 		return result{Err: fmt.Errorf("Error: failed read db ")}
 	} else if dbData.Lock != 0 {
 		return result{Err: fmt.Errorf("Error: Locked NIC !! ")}
@@ -39,7 +39,7 @@ func DeleteNIC(data *pb.NICData) result {
 }
 
 func UpdateNIC(data *pb.NICData) result {
-	dbData, err := db.SearchDBNIC(db.NIC{ID: int(data.GetID())})
+	dbData, err := db.SearchDBNIC(db.NIC{ID: int(data.GetID() / 100000)})
 	if err != nil {
 		return result{Err: fmt.Errorf("Error: failed read db ")}
 	} else if dbData.Lock != 0 {

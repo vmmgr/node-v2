@@ -78,7 +78,7 @@ func (t *Tmp) AddStorage(data *pb.StorageData) result {
 
 func DeleteStorage(data *pb.StorageData) result {
 	var path string
-	dbData, err := db.SearchDBStorage(db.Storage{ID: int(data.GetID())})
+	dbData, err := db.SearchDBStorage(db.Storage{ID: int(data.GetID() / 100000)})
 	if err != nil {
 		return result{Err: fmt.Errorf("Error: db read error ")}
 	}
@@ -108,7 +108,7 @@ func DeleteStorage(data *pb.StorageData) result {
 // #4 Test
 func UpdateStorage(data *pb.StorageData) result {
 	var path string
-	dbData, err := db.SearchDBStorage(db.Storage{ID: int(data.GetID())})
+	dbData, err := db.SearchDBStorage(db.Storage{ID: int(data.GetID() / 100000)})
 	if err != nil {
 		return result{Info: "Error: db read error", Err: err}
 	}
