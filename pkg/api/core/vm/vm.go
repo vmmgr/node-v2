@@ -76,8 +76,8 @@ func UpdateVM(data *pb.VMData) result {
 	//	return result{Err: fmt.Errorf("Error: delete failed !! ")}
 	//}
 	//
-	//if deleteResult := db.DeleteDBVM(db.VM{ID: int(vmData.GetID())}); deleteResult.Error != nil {
-	//	return result{Err: fmt.Errorf("Error: delete db error !! ")}
+	//if deleteResult := store.DeleteDBVM(store.VM{ID: int(vmData.GetID())}); deleteResult.Error != nil {
+	//	return result{Err: fmt.Errorf("Error: delete store error !! ")}
 	//}
 	return result{Info: info, Err: nil}
 }

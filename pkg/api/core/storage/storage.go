@@ -80,7 +80,7 @@ func DeleteStorage(data *pb.StorageData) result {
 	var path string
 	dbData, err := db.SearchDBStorage(db.Storage{ID: int(data.GetID() / 100000)})
 	if err != nil {
-		return result{Err: fmt.Errorf("Error: db read error ")}
+		return result{Err: fmt.Errorf("Error: store read error ")}
 	}
 	if 0 < dbData.Mode && dbData.Mode < 10 {
 		basePath := etc.GetDiskPath(dbData.Mode)
@@ -100,7 +100,7 @@ func DeleteStorage(data *pb.StorageData) result {
 	}
 
 	if deleteResult := db.DeleteDBStorage(db.Storage{ID: int(data.GetID())}); deleteResult.Error != nil {
-		return result{Err: fmt.Errorf("Error: delete db error !! ")}
+		return result{Err: fmt.Errorf("Error: delete store error !! ")}
 	}
 	return result{Info: "OK", Err: nil}
 }
@@ -110,7 +110,7 @@ func UpdateStorage(data *pb.StorageData) result {
 	var path string
 	dbData, err := db.SearchDBStorage(db.Storage{ID: int(data.GetID() / 100000)})
 	if err != nil {
-		return result{Info: "Error: db read error", Err: err}
+		return result{Info: "Error: store read error", Err: err}
 	}
 	if dbData.Lock == 1 {
 		return result{Err: fmt.Errorf("Error: disk is locked ")}

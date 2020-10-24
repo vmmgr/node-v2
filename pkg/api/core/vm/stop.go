@@ -2,7 +2,6 @@ package vm
 
 import (
 	"fmt"
-	"github.com/mattn/go-pipeline"
 	"github.com/vmmgr/node/db"
 	"github.com/vmmgr/node/etc"
 	"log"

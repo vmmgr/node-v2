@@ -1,4 +1,4 @@
-package db
+package store
 
 //Add
 func AddDBNet(data Net) result {

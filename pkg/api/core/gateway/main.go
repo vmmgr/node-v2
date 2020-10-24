@@ -1,4 +1,4 @@
-package data
+package gateway
 
 import (
 	pb "github.com/vmmgr/node/proto/proto-go"

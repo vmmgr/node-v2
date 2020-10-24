@@ -32,7 +32,7 @@ func (t *Tmp) fileCopy(srcFile, dstFile string) result {
 	defer src.Close()
 	file, err := src.Stat()
 	if err != nil {
-		log.Println("Error: file data error")
+		log.Println("Error: file gateway error")
 		return result{Info: "Error: file create", Err: err}
 	}
 

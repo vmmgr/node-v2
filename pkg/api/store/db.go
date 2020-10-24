@@ -1,4 +1,4 @@
-package db
+package store
 
 import (
 	"github.com/jinzhu/gorm"
@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-const dbPath = "./node.db"
+const dbPath = "./node.store"
 
 type VM struct {
 	ID        int `gorm:primary_key`
@@ -79,7 +79,7 @@ func initSQLite3() *gorm.DB {
 	if err != nil {
 		log.Println("SQL open error")
 	}
-	//db.LogMode(true)
+	//store.LogMode(true)
 	db.SingularTable(true)
 
 	db.AutoMigrate(&VM{})

@@ -1,4 +1,4 @@
-package db
+package store
 
 import "fmt"
 
@@ -6,7 +6,7 @@ import "fmt"
 func AddDBVM(data VM) result {
 	db := InitDB()
 	defer db.Close()
-	//db.Table("group").CreateTable(&data)
+	//store.Table("group").CreateTable(&gateway)
 	db.Create(&data)
 
 	if err := db.Error; err != nil {

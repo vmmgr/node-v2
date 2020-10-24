@@ -1,4 +1,4 @@
-package db
+package store
 
 //Add
 func AddDBNIC(data NIC) result {

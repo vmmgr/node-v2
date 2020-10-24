@@ -1,4 +1,4 @@
-package data
+package gateway
 
 import (
 	"context"
@@ -75,7 +75,7 @@ func (s *server) GetVM(_ context.Context, in *pb.VMData) (*pb.VMData, error) {
 			value, _ := strconv.Atoi(tmp)
 			nic = append(nic, &pb.NICData{ID: uint64(value)})
 		}
-		//for _, tmp := range strings.Split(data.PCI, ",") {
+		//for _, tmp := range strings.Split(gateway.PCI, ",") {
 		//	value, _ := strconv.Atoi(tmp)
 		//	pci = append(pci, &pb.PCIData{ID: int64(value)})
 		//}
@@ -114,7 +114,7 @@ func (s *server) GetAllVM(_ *pb.Null, stream pb.Node_GetAllVMServer) error {
 				value, _ := strconv.Atoi(tmp)
 				nic = append(nic, &pb.NICData{ID: uint64(value)})
 			}
-			//for _, tmp := range strings.Split(data.PCI, ",") {
+			//for _, tmp := range strings.Split(gateway.PCI, ",") {
 			//	value, _ := strconv.Atoi(tmp)
 			//	pci = append(pci, &pb.PCIData{ID: uint64(value)})
 			//}

@@ -15,9 +15,9 @@ database init: init database
 `,
 }
 var initDBCmd = &cobra.Command{
-	Use:   "db",
-	Short: "db init",
-	Long:  "db init cmd",
+	Use:   "store",
+	Short: "store init",
+	Long:  "store init cmd",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return nil
 	},
