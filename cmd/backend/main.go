@@ -1,6 +1,6 @@
 package main
 
-import "github.com/vmmgr/node/cmd"
+import "github.com/vmmgr/node/pkg/cmd"
 
 func main() {
 	cmd.Execute()
