@@ -8,7 +8,7 @@ package storage
 
 type Storage struct {
 	Type     uint   `json:"type"`
-	FileType uint   `json:"file_type"`
+	FileType uint   `json:"filetype"`
 	Path     string `json:"path"`
 	ReadOnly bool   `json:"readonly"`
 	Boot     uint   `json:"boot"`
@@ -22,7 +22,7 @@ type GenerateStorageXml struct {
 
 func GetDriverName(driver uint) string {
 	// デフォルトはqcow2
-	if driver == 0 {
+	if driver == 1 {
 		return "img"
 	}
 	return "qcow2"

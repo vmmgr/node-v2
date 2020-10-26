@@ -7,12 +7,14 @@ import (
 
 type VirtualMachine struct {
 	Name    string            `json:"name"`
+	UUID    string            `json:"uuid"`
 	Memory  uint              `json:"memory"`
 	CPUMode uint              `json:"cpu_mode"`
 	VCPU    uint              `json:"vcpu"`
 	OS      OS                `json:"os"`
 	NIC     []nic.NIC         `json:"nic"`
 	Storage []storage.Storage `json:"storage"`
+	Stat    uint              `json:"stat"`
 }
 
 type OS struct {

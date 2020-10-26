@@ -19,7 +19,6 @@ type NIC struct {
 
 type GenerateNICXml struct {
 	NIC           NIC
-	Number        uint
 	AddressNumber uint
 }
 
