@@ -72,12 +72,10 @@ func generateTemplate(xmlStruct nic.GenerateNICXml) *libVirtXml.DomainInterface 
 	//PCI Address
 	domNIC.Address = &libVirtXml.DomainAddress{
 		PCI: &libVirtXml.DomainAddressPCI{
-			Domain:        &[]uint{0}[0],
-			Bus:           &[]uint{xmlStruct.AddressNumber}[0],
-			Slot:          &[]uint{0}[0],
-			Function:      &[]uint{0}[0],
-			MultiFunction: "",
-			ZPCI:          nil,
+			Domain:   &[]uint{0}[0],
+			Bus:      &[]uint{xmlStruct.AddressNumber}[0],
+			Slot:     &[]uint{0}[0],
+			Function: &[]uint{0}[0],
 		},
 	}
 
