@@ -1,4 +1,4 @@
-package nic
+package mac
 
 import (
 	"log"
@@ -12,7 +12,7 @@ func random(min, max int) int {
 	return rand.Intn(max-min) + min
 }
 
-func generateMacAddress() string {
+func GenerateMacAddress() string {
 	mac := "52:54"
 	var value string
 	for i := 0; i < 4; i++ {
