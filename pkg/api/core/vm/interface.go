@@ -29,6 +29,10 @@ type Address struct {
 	DiskCount uint
 }
 
+type VirtualMachineStop struct {
+	Force bool `json:"force"`
+}
+
 func GetCPUMode(mode uint) string {
 	//デフォルトではcustomModeになる
 	//https://access.redhat.com/documentation/ja-jp/red_hat_enterprise_linux/6/html/virtualization_administration_guide/sect-libvirt-dom-xml-cpu-model-top
