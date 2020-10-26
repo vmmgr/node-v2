@@ -1,9 +1,11 @@
 package v0
 
 import (
+	"encoding/xml"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/libvirt/libvirt-go"
+	libVirtXml "github.com/libvirt/libvirt-go-xml"
 	"github.com/vmmgr/node/pkg/api/core/vm"
 	"github.com/vmmgr/node/pkg/api/meta/json"
 	"log"
@@ -164,17 +166,24 @@ func (h *VMHandler) GetAll(c *gin.Context) {
 			return
 		}
 
-		info, _ := domResult.GetInfo()
-		uuid, _ := domResult.GetUUIDString()
+		t := libVirtXml.Domain{}
+
 		_, stat, _ := domResult.GetState()
+		tmp, _ := domResult.GetXMLDesc(libvirt.DOMAIN_XML_SECURE)
+		xml.Unmarshal([]byte(tmp), &t)
+
+		//log.Println(t.OS.Type.Arch)
 		vms = append(vms, vm.VirtualMachine{
 			Name:   dom,
-			Memory: uint(info.Memory),
-			UUID:   uuid,
-			Stat:   uint(stat),
+			VCPU:   t.VCPU.Value,
+			Memory: t.Memory.Value,
+			UUID:   t.UUID,
+			OS: vm.OS{
+				Boot: t.OS.BootDevices[0].Dev,
+				Type: t.OS.Type.Type,
+			},
+			Stat: uint(stat),
 		})
-		fmt.Println(info)
-		fmt.Println(uuid)
 	}
 	json.ResponseOK(c, gin.H{
 		"vm": vms,
