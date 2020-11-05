@@ -39,6 +39,18 @@ func xmlGenerate(input vm.VirtualMachine) (*libVirtXml.Domain, error) {
 				Type:    "hvm",
 			},
 		},
+		Devices: &libVirtXml.DomainDeviceList{
+			Graphics: []libVirtXml.DomainGraphic{
+				{
+					VNC: &libVirtXml.DomainGraphicVNC{
+						Port:      int(input.VNCPort),
+						WebSocket: int(input.VNCPort - 200),
+						Keymap:    input.KeyMap,
+						Listen:    "address",
+					},
+				},
+			},
+		},
 	}
 
 	// storage xmlの生成
