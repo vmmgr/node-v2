@@ -16,7 +16,7 @@ type VMHandler struct {
 	conn *libvirt.Connect
 }
 
-func NewMainHandler(connect *libvirt.Connect) *VMHandler {
+func NewVMHandler(connect *libvirt.Connect) *VMHandler {
 	return &VMHandler{conn: connect}
 }
 
@@ -106,7 +106,42 @@ func (h *VMHandler) Update(c *gin.Context) {
 }
 
 func (h *VMHandler) Get(c *gin.Context) {
+	id := c.Param("id")
 
+	dom, err := h.conn.LookupDomainByUUIDString(id)
+	if err != nil {
+		json.ResponseError(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	stat, _, err := dom.GetState()
+	if err != nil {
+		log.Println(err)
+		json.ResponseError(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	// 初期定義
+	t := libVirtXml.Domain{}
+
+	// XMLをStructに代入
+	tmpXml, _ := dom.GetXMLDesc(libvirt.DOMAIN_XML_SECURE)
+	xml.Unmarshal([]byte(tmpXml), &t)
+
+	json.ResponseOK(c, gin.H{
+		"vm": vm.VirtualMachine{
+			Name:   t.Name,
+			VCPU:   t.VCPU.Value,
+			Memory: t.Memory.Value,
+			UUID:   t.UUID,
+			OS: vm.OS{
+				Boot: t.OS.BootDevices[0].Dev,
+				Type: t.OS.Type.Type,
+			},
+			Stat: uint(stat),
+		},
+		"xml": tmpXml,
+	})
 }
 
 func (h *VMHandler) GetStatus(c *gin.Context) {
