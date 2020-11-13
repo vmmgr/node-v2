@@ -129,15 +129,8 @@ func (h *VMHandler) Get(c *gin.Context) {
 	xml.Unmarshal([]byte(tmpXml), &t)
 
 	json.ResponseOK(c, gin.H{
-		"vm": vm.VirtualMachine{
-			Name:   t.Name,
-			VCPU:   t.VCPU.Value,
-			Memory: t.Memory.Value,
-			UUID:   t.UUID,
-			OS: vm.OS{
-				Boot: t.OS.BootDevices[0].Dev,
-				Type: t.OS.Type.Type,
-			},
+		"vm": vm.Detail{
+			VM:   t,
 			Stat: uint(stat),
 		},
 		"xml": tmpXml,
@@ -183,43 +176,31 @@ func (h *VMHandler) GetStatus(c *gin.Context) {
 }
 
 func (h *VMHandler) GetAll(c *gin.Context) {
-	doms, err := h.conn.ListDefinedDomains()
+	doms, err := h.conn.ListAllDomains(libvirt.CONNECT_LIST_DOMAINS_ACTIVE | libvirt.CONNECT_LIST_DOMAINS_INACTIVE)
+	log.Println(doms)
 	if err != nil {
 		log.Println(err)
 		json.ResponseError(c, http.StatusInternalServerError, err)
 		return
 	}
 
-	var vms []vm.VirtualMachine
+	var vms []vm.Detail
 
 	for _, dom := range doms {
-		log.Println(dom)
-		domResult, err := h.conn.LookupDomainByName(dom)
-		if err != nil {
-			log.Println(err)
-			json.ResponseError(c, http.StatusInternalServerError, err)
-			return
-		}
-
 		t := libVirtXml.Domain{}
+		_, stat, _ := dom.GetState()
+		xmlString, _ := dom.GetXMLDesc(libvirt.DOMAIN_XML_SECURE)
+		xml.Unmarshal([]byte(xmlString), &t)
 
-		_, stat, _ := domResult.GetState()
-		tmp, _ := domResult.GetXMLDesc(libvirt.DOMAIN_XML_SECURE)
-		xml.Unmarshal([]byte(tmp), &t)
-
-		//log.Println(t.OS.Type.Arch)
-		vms = append(vms, vm.VirtualMachine{
-			Name:   dom,
-			VCPU:   t.VCPU.Value,
-			Memory: t.Memory.Value,
-			UUID:   t.UUID,
-			OS: vm.OS{
-				Boot: t.OS.BootDevices[0].Dev,
-				Type: t.OS.Type.Type,
-			},
+		//log.Println(len(t.Devices.Graphics))
+		//log.Println(t.Devices.Graphics[0].VNC.Port)
+		//log.Println(t.Devices.Graphics)
+		vms = append(vms, vm.Detail{
+			VM:   t,
 			Stat: uint(stat),
 		})
 	}
+
 	json.ResponseOK(c, gin.H{
 		"vm": vms,
 	})
