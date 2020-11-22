@@ -1,20 +1,30 @@
 package vm
 
 import (
+	libvirtxml "github.com/libvirt/libvirt-go-xml"
 	"github.com/vmmgr/node/pkg/api/core/nic"
 	"github.com/vmmgr/node/pkg/api/core/storage"
 )
 
 type VirtualMachine struct {
-	Name    string            `json:"name"`
-	UUID    string            `json:"uuid"`
-	Memory  uint              `json:"memory"`
-	CPUMode uint              `json:"cpu_mode"`
-	VCPU    uint              `json:"vcpu"`
-	OS      OS                `json:"os"`
-	NIC     []nic.NIC         `json:"nic"`
-	Storage []storage.Storage `json:"storage"`
-	Stat    uint              `json:"stat"`
+	Name      string            `json:"name"`
+	UUID      string            `json:"uuid"`
+	Memory    uint              `json:"memory"`
+	CPUMode   uint              `json:"cpu_mode"`
+	VCPU      uint              `json:"vcpu"`
+	OS        OS                `json:"os"`
+	VNCPort   uint              `json:"vnc_port"`
+	KeyMap    string            `json:"keymap"`
+	NIC       []nic.NIC         `json:"nic"`
+	Storage   []storage.Storage `json:"storage"`
+	VNC       int               `json:"vnc"`
+	WebSocket int               `json:"websocket"`
+	Stat      uint              `json:"stat"`
+}
+
+type Detail struct {
+	VM   libvirtxml.Domain `json:"vm"`
+	Stat uint              `json:"stat"`
 }
 
 type OS struct {
