@@ -15,6 +15,18 @@ func xmlGenerate(input vm.VirtualMachine) (*libVirtXml.Domain, error) {
 		return nil, err
 	}
 
+	// storage xmlの生成
+	disks, address, err := storage.XmlGenerate(input)
+	if err != nil {
+		return nil, err
+	}
+
+	// nic xmlの生成
+	nics, address, err := nic.XmlGenerate(input, address)
+	if err != nil {
+		return nil, err
+	}
+
 	domCfg := &libVirtXml.Domain{
 		Type: "kvm",
 		Memory: &libVirtXml.DomainMemory{
@@ -50,25 +62,9 @@ func xmlGenerate(input vm.VirtualMachine) (*libVirtXml.Domain, error) {
 					},
 				},
 			},
+			Disks:      disks,
+			Interfaces: nics,
 		},
-	}
-
-	// storage xmlの生成
-	disks, address, err := storage.XmlGenerate(input)
-	if err != nil {
-		return nil, err
-	}
-
-	// nic xmlの生成
-	nics, address, err := nic.XmlGenerate(input, address)
-	if err != nil {
-		return nil, err
-	}
-
-	// DomainDeviceListをdomCfgに挿入
-	domCfg.Devices = &libVirtXml.DomainDeviceList{
-		Disks:      disks,
-		Interfaces: nics,
 	}
 
 	return domCfg, nil
