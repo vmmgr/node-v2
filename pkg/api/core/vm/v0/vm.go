@@ -34,6 +34,15 @@ func (h *VMHandler) Add(c *gin.Context) {
 	}
 	log.Println(err)
 
+	if input.VNCPort == 0 {
+		vnc, err := h.generateVNC()
+		if err != nil {
+			json.ResponseError(c, http.StatusInternalServerError, err)
+		}
+		input.VNCPort = uint(vnc.VNCPort)
+		input.WebSocketPort = uint(vnc.WebSocketPort)
+	}
+
 	domCfg, err := xmlGenerate(input)
 	if err != nil {
 		log.Println(err)
@@ -55,12 +64,8 @@ func (h *VMHandler) Add(c *gin.Context) {
 		json.ResponseError(c, http.StatusInternalServerError, err)
 		return
 	}
-	//if err = dom.Create(); err != nil {
-	//	json.ResponseError(c, http.StatusInternalServerError, err)
-	//} else {
+
 	json.ResponseOK(c, nil)
-	//meta.ResponseJSON(c, http.StatusOK, nil, nil)
-	//}
 }
 
 func (h *VMHandler) Delete(c *gin.Context) {

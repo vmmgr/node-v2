@@ -44,7 +44,7 @@ func xmlGenerate(input vm.VirtualMachine) (*libVirtXml.Domain, error) {
 				{
 					VNC: &libVirtXml.DomainGraphicVNC{
 						Port:      int(input.VNCPort),
-						WebSocket: int(input.VNCPort - 200),
+						WebSocket: int(input.WebSocketPort),
 						Keymap:    input.KeyMap,
 						Listen:    "address",
 					},
