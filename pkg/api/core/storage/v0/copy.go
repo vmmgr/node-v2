@@ -40,7 +40,7 @@ func sftpRemoteToLocal(auth storage.SFTPAuth, srcRemotePath, dstLocalPath string
 	sshConn, err := ssh.Dial("tcp", auth.IP+":22", config)
 	if err != nil {
 		log.Println(err)
-		sendServer(input, 0, err)
+		sendServer(input, dstLocalPath, 0, err)
 		return err
 	}
 	defer sshConn.Close()
@@ -49,7 +49,7 @@ func sftpRemoteToLocal(auth storage.SFTPAuth, srcRemotePath, dstLocalPath string
 	client, err := sftp.NewClient(sshConn)
 	if err != nil {
 		log.Println(err)
-		sendServer(input, 0, err)
+		sendServer(input, dstLocalPath, 0, err)
 		return err
 	}
 	defer client.Close()
@@ -58,7 +58,7 @@ func sftpRemoteToLocal(auth storage.SFTPAuth, srcRemotePath, dstLocalPath string
 	dstFile, err := os.Create(dstLocalPath)
 	if err != nil {
 		log.Println(err)
-		sendServer(input, 0, err)
+		sendServer(input, dstLocalPath, 0, err)
 		return err
 	}
 	defer dstFile.Close()
@@ -67,14 +67,14 @@ func sftpRemoteToLocal(auth storage.SFTPAuth, srcRemotePath, dstLocalPath string
 	srcFile, err := client.Open(srcRemotePath)
 	if err != nil {
 		log.Println(err)
-		sendServer(input, 0, err)
+		sendServer(input, dstLocalPath, 0, err)
 		return err
 	}
 
 	file, err := srcFile.Stat()
 	if err != nil {
 		log.Println("Error: file gateway error")
-		sendServer(input, 0, err)
+		sendServer(input, dstLocalPath, 0, err)
 		return err
 	}
 
@@ -103,7 +103,7 @@ func sftpRemoteToLocal(auth storage.SFTPAuth, srcRemotePath, dstLocalPath string
 		for {
 			if p.size != p.total {
 				<-time.NewTimer(1 * time.Second).C
-				sendServer(input, int(float64(p.size)/float64(p.total)*100), nil)
+				sendServer(input, dstLocalPath, int(float64(p.size)/float64(p.total)*100), nil)
 			} else {
 				return
 			}
@@ -114,7 +114,7 @@ func sftpRemoteToLocal(auth storage.SFTPAuth, srcRemotePath, dstLocalPath string
 	bytes, err := io.Copy(dstFile, io.TeeReader(srcFile, &p))
 	if err != nil {
 		log.Println(err)
-		sendServer(input, 0, err)
+		sendServer(input, dstLocalPath, 0, err)
 		return err
 	}
 	bar.Set(100)
@@ -124,10 +124,10 @@ func sftpRemoteToLocal(auth storage.SFTPAuth, srcRemotePath, dstLocalPath string
 	err = dstFile.Sync()
 	if err != nil {
 		log.Println(err)
-		sendServer(input, 0, err)
+		sendServer(input, dstLocalPath, 0, err)
 		return err
 	}
-	sendServer(input, 100, nil)
+	sendServer(input, dstLocalPath, 100, nil)
 
 	return nil
 }
@@ -221,11 +221,12 @@ func fileCopy(srcFile, dstFile, controller string) error {
 	return nil
 }
 
-func sendServer(input storage.Storage, progress int, error error) {
+func sendServer(input storage.Storage, filePath string, progress int, error error) {
 	for _, srv := range config.Conf.Controller.List {
 		sendBody, _ := json.Marshal(controller.Node{
 			GroupID:  input.GroupID,
 			UUID:     input.UUID,
+			FilePath: filePath,
 			Progress: uint(progress),
 			Error:    error,
 			Comment:  "storage creating...",
