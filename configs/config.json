@@ -1,54 +1,45 @@
 {
-  "disk": {
-    "path": [
+  "controller": {
+    "auth": {
+      "token1": "1234",
+      "token2": "5678",
+      "token3": "9012"
+    },
+    "list": [
       {
-        "type": 1,
-        "path": "/home/yoneyan/vm/1",
-        "status": true
-      },
-      {
-        "type": 2,
-        "path": "/home/yoneyan/vm/2",
-        "status": true
-      },
-      {
-        "type": 3,
-        "path": "/home/yoneyan/vm/3",
-        "status": true
-      },
-      {
-        "type": 4,
-        "path": "/home/yoneyan/vm/4",
-        "status": true
-      },
-      {
-        "type": 5,
-        "path": "/home/yoneyan/vm/5",
-        "status": true
-      },
-      {
-        "type": 6,
-        "path": "/home/yoneyan/vm/6",
-        "status": false
-      },
-      {
-        "type": 7,
-        "path": "/home/yoneyan/vm/6",
-        "status": false
-      },
-      {
-        "type": 8,
-        "path": "/home/yoneyan/vm/6",
-        "status": false
-      },
-      {
-        "type": 9,
-        "path": "/home/yoneyan/vm/6",
-        "status": false
+        "url": "http://localhost:8081/api/v1/controller/node"
       }
     ]
   },
-  "image": {
-    "path": "/home/yoneyan/image"
-  }
+  "node": {
+    "ip": "127.0.0.1",
+    "port": 8080,
+    "machine": "pc-q35-4.2"
+  },
+  "imacon": {
+    "user": "user",
+    "pass": "pass"
+  },
+  "storage": [
+    {
+      "id": 1,
+      "type": 1,
+      "path": "/home/yonedayuto/vm/1"
+    },
+    {
+      "id": 2,
+      "type": 2,
+      "path": "/home/yonedayuto/vm/2"
+    },
+    {
+      "id": 3,
+      "type": 3,
+      "path": "/home/yonedayuto/vm/3"
+    },
+    {
+      "id": 4,
+      "type": 4,
+      "path": "/home/yonedayuto/vm/4"
+    }
+  ]
 }

@@ -1,0 +1,24 @@
+{
+  "network": {
+    "nic": [
+      {
+        "device": "bond0",
+        "vlan": 0,
+        "bond": 0,
+        "master": ""
+      },
+      {
+        "device": "eth0",
+        "vlan": 0,
+        "bond": 0,
+        "master": ""
+      },
+      {
+        "device": "eth1",
+        "vlan": 0,
+        "bond": 0,
+        "master": ""
+      }
+    ]
+  }
+}
