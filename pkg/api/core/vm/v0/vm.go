@@ -59,13 +59,18 @@ func (h *VMHandler) Add(c *gin.Context) {
 
 	fmt.Println(xml)
 
-	_, err = h.conn.DomainDefineXML(xml)
+	dom, err := h.conn.DomainDefineXML(xml)
 	if err != nil {
 		json.ResponseError(c, http.StatusInternalServerError, err)
 		return
 	}
 
-	json.ResponseOK(c, nil)
+	err = dom.Create()
+	if err != nil {
+		json.ResponseOK(c, nil)
+	} else {
+		json.ResponseError(c, http.StatusInternalServerError, err)
+	}
 }
 
 func (h *VMHandler) Delete(c *gin.Context) {
