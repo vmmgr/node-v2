@@ -16,3 +16,16 @@
 
 ### サポートOS
 * Ubuntu20.04 LTS
+
+### libvirtの設定
+/etc/libvirt/libvirt.conf
+```
+unix_sock_group = "libvirt"
+unix_sock_ro_perms= "0777"
+unix_sock_rw_perms= "0770"
+```
+
+### Machine一覧表示
+```
+kvm -M help　(ubuntu)
+```
