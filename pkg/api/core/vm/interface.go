@@ -7,19 +7,19 @@ import (
 )
 
 type VirtualMachine struct {
-	Name      string            `json:"name"`
-	UUID      string            `json:"uuid"`
-	Memory    uint              `json:"memory"`
-	CPUMode   uint              `json:"cpu_mode"`
-	VCPU      uint              `json:"vcpu"`
-	OS        OS                `json:"os"`
-	VNCPort   uint              `json:"vnc_port"`
-	KeyMap    string            `json:"keymap"`
-	NIC       []nic.NIC         `json:"nic"`
-	Storage   []storage.Storage `json:"storage"`
-	VNC       int               `json:"vnc"`
-	WebSocket int               `json:"websocket"`
-	Stat      uint              `json:"stat"`
+	Name          string              `json:"name"`
+	UUID          string              `json:"uuid"`
+	Memory        uint                `json:"memory"`
+	CPUMode       uint                `json:"cpu_mode"`
+	VCPU          uint                `json:"vcpu"`
+	OS            OS                  `json:"os"`
+	VNCPort       uint                `json:"vnc_port"`
+	WebSocketPort uint                `json:"websocket_port"`
+	KeyMap        string              `json:"keymap"`
+	NIC           []nic.NIC           `json:"nic"`
+	Storage       []storage.VMStorage `json:"storage"`
+	WebSocket     int                 `json:"websocket"`
+	Stat          uint                `json:"stat"`
 }
 
 type Detail struct {
