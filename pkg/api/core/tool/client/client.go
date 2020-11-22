@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func Post(url, body string) error {
+func Post(url string, body []byte) error {
 	client := &http.Client{}
 	client.Timeout = time.Second * 5
 
@@ -25,7 +25,7 @@ func Post(url, body string) error {
 	header.Add("TOKEN_2", hash.Generate(config.Conf.Controller.Auth.Token2+config.Conf.Controller.Auth.Token3))
 
 	//リクエストの作成
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte(body)))
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(body))
 	if err != nil {
 		return err
 	}
@@ -47,7 +47,7 @@ func Post(url, body string) error {
 	return nil
 }
 
-func Get(url, body string) error {
+func Get(url string, body []byte) error {
 	client := &http.Client{}
 	client.Timeout = time.Second * 5
 
@@ -81,7 +81,7 @@ func Get(url, body string) error {
 	return nil
 }
 
-func Put(url, body string) error {
+func Put(url string, body []byte) error {
 	client := &http.Client{}
 	client.Timeout = time.Second * 5
 
@@ -115,7 +115,7 @@ func Put(url, body string) error {
 	return nil
 }
 
-func Delete(url, body string) error {
+func Delete(url string, body []byte) error {
 	client := &http.Client{}
 	client.Timeout = time.Second * 5
 
