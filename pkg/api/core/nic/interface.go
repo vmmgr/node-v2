@@ -25,9 +25,9 @@ type GenerateNICXml struct {
 func GetDriverName(driver uint) string {
 	//デフォルトはvirtio
 
-	if driver == 0 {
+	if driver == 1 {
 		return "e1000e"
-	} else if driver == 1 {
+	} else if driver == 2 {
 		return "rtl8139"
 	}
 	return "virtio"
