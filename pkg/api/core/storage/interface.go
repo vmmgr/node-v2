@@ -49,13 +49,6 @@ type SFTPAuth struct {
 	Pass string
 }
 
-type SendController struct {
-	GroupID  uint   `json:"group_id"`
-	UUID     string `json:"uuid"`
-	Progress uint   `json:"progress"`
-	Comment  uint   `json:"comment"`
-}
-
 func GetExtensionName(extension uint) string {
 	// デフォルトはqcow2
 	if extension == 1 {
