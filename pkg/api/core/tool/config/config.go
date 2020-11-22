@@ -13,8 +13,7 @@ type Config struct {
 }
 
 type Controller struct {
-	IP   string `json:"ip"`
-	Port int    `json:"port"`
+	List []List `json:"port"`
 	Auth Auth   `json:"auth"`
 }
 
@@ -22,6 +21,10 @@ type Auth struct {
 	Token1 string `json:"token1"`
 	Token2 string `json:"token2"`
 	Token3 string `json:"token3"`
+}
+
+type List struct {
+	URL string `json:"url"`
 }
 
 type Node struct {
