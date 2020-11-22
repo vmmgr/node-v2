@@ -17,6 +17,11 @@
 ### サポートOS
 * Ubuntu20.04 LTS
 
+### Install
+```
+sudo apt install qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils
+```
+
 ### libvirtの設定
 /etc/libvirt/libvirt.conf
 ```
