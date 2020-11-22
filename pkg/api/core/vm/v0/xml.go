@@ -52,6 +52,11 @@ func xmlGenerate(input vm.VirtualMachine) (*libVirtXml.Domain, error) {
 			},
 		},
 		Devices: &libVirtXml.DomainDeviceList{
+			Emulator: "/usr/bin/qemu-system-x86_64",
+			Inputs: []libVirtXml.DomainInput{
+				{Type: "mouse", Bus: "ps2"},
+				{Type: "keyboard", Bus: "ps2"},
+			},
 			Graphics: []libVirtXml.DomainGraphic{
 				{
 					VNC: &libVirtXml.DomainGraphicVNC{
