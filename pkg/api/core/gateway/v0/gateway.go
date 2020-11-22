@@ -3,6 +3,8 @@ package v0
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/libvirt/libvirt-go"
+	storage "github.com/vmmgr/node/pkg/api/core/storage/v0"
+	"github.com/vmmgr/node/pkg/api/core/tool/config"
 	vm "github.com/vmmgr/node/pkg/api/core/vm/v0"
 	"log"
 	"net/http"
@@ -16,7 +18,8 @@ func NodeAPI() {
 	}
 	defer conn.Close()
 
-	vmh := vm.NewMainHandler(conn)
+	vmh := vm.NewVMHandler(conn)
+	storageh := storage.NewStorageHandler(conn)
 
 	router := gin.Default()
 	router.Use(cors)
@@ -25,8 +28,9 @@ func NodeAPI() {
 	{
 		v1 := api.Group("/v1")
 		{
-
+			//
 			// VM
+			//
 			v1.POST("/vm", vmh.Add)
 			v1.GET("/vm", vmh.GetAll)
 
@@ -39,13 +43,18 @@ func NodeAPI() {
 			v1.GET("/vm/:id/power", vmh.GetStatus)
 			v1.DELETE("/vm/:id/power", vmh.Shutdown)
 
-			// VM Reset
-			v1.PUT("/vm/:id/reset", vmh.Reset)
+			// VNC
 
+			//
+			// Storage
+			//
+			v1.POST("/storage", storageh.Add)
+			v1.GET("/storage", storageh.InfoImage)
+			v1.POST("/storage/convert", storageh.ConvertImage)
 		}
 	}
 
-	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(8080), router))
+	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(int(config.Conf.Node.Port)), router))
 }
 
 func cors(c *gin.Context) {
