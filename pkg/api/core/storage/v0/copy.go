@@ -10,7 +10,6 @@ import (
 	"github.com/vmmgr/node/pkg/api/core/tool/client"
 	"github.com/vmmgr/node/pkg/api/core/tool/config"
 	"golang.org/x/crypto/ssh"
-
 	"io"
 	"log"
 	"os"
@@ -231,7 +230,6 @@ func sendServer(input storage.Storage, progress int, error error) {
 			Error:    error,
 			Comment:  "storage creating...",
 		})
-		err := client.Post(srv.URL, sendBody)
-		log.Println("Error: Send to Controller    |" + err.Error())
+		client.Post(srv.URL, sendBody)
 	}
 }
