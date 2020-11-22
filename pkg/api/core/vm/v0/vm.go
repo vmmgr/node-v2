@@ -67,9 +67,9 @@ func (h *VMHandler) Add(c *gin.Context) {
 
 	err = dom.Create()
 	if err != nil {
-		json.ResponseOK(c, nil)
-	} else {
 		json.ResponseError(c, http.StatusInternalServerError, err)
+	} else {
+		json.ResponseOK(c, nil)
 	}
 }
 
