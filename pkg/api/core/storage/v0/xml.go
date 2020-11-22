@@ -126,7 +126,7 @@ func generateTemplate(xmlStruct storage.GenerateStorageXml) *libVirtXml.DomainDi
 	// Driver
 	domDisk.Driver = &libVirtXml.DomainDiskDriver{
 		Name: "qemu",
-		Type: storage.GetDriverName(xmlStruct.Storage.FileType),
+		Type: storage.GetExtensionName(xmlStruct.Storage.FileType),
 	}
 	// File Path
 	domDisk.Source = &libVirtXml.DomainDiskSource{
