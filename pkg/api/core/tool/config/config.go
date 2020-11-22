@@ -13,7 +13,7 @@ type Config struct {
 }
 
 type Controller struct {
-	List []List `json:"port"`
+	List []List `json:"list"`
 	Auth Auth   `json:"auth"`
 }
 
