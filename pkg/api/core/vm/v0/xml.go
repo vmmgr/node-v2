@@ -63,7 +63,7 @@ func xmlGenerate(input vm.VirtualMachine) (*libVirtXml.Domain, error) {
 						Port:      int(input.VNCPort),
 						WebSocket: int(input.WebSocketPort),
 						Keymap:    input.KeyMap,
-						Listen:    "address",
+						Listen:    "0.0.0.0",
 					},
 				},
 			},
