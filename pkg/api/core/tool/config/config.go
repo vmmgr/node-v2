@@ -30,6 +30,7 @@ type List struct {
 type Node struct {
 	IP      string `json:"ip"`
 	Port    uint   `json:"port"`
+	MAC     string `json:"mac"`
 	Machine string `json:"machine"`
 }
 
