@@ -74,7 +74,7 @@ func (h *VMHandler) generateVNC() (generateVNC, error) {
 
 	for _, port := range webSocketPort {
 		//Port番号が上限に達する場合、エラーを返す
-		if vncPortStart+portCount <= vncPortCount {
+		if webSocketPortCount+portCount <= webSocketPortCount {
 			return generateVNC{}, fmt.Errorf("Error: max port ")
 		}
 
