@@ -20,10 +20,11 @@ func ListSlaves() ([]net.Net, error) {
 	var devices []net.Net
 	for _, l := range links {
 		devices = append(devices, net.Net{
-			Name:  l.Attrs().Name,
-			MAC:   l.Attrs().HardwareAddr.String(),
-			MTU:   l.Attrs().MTU,
-			Index: l.Attrs().Index,
+			Name:   l.Attrs().Name,
+			MAC:    l.Attrs().HardwareAddr.String(),
+			MTU:    l.Attrs().MTU,
+			Index:  l.Attrs().Index,
+			Status: l.Attrs().OperState.String(),
 		})
 	}
 
