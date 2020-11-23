@@ -1,20 +1,23 @@
 package v0
 
 import (
+	"fmt"
 	libVirtXml "github.com/libvirt/libvirt-go-xml"
 	"github.com/vmmgr/node/pkg/api/core/nic"
-	"github.com/vmmgr/node/pkg/api/core/tool/mac"
-	"github.com/vmmgr/node/pkg/api/core/vm"
 )
 
-func XmlGenerate(input vm.VirtualMachine, address vm.Address) ([]libVirtXml.DomainInterface, vm.Address, error) {
+func (h *NICHandler) XmlGenerate() ([]libVirtXml.DomainInterface, error) {
 	var nics []libVirtXml.DomainInterface
 
-	var pciAddressCount uint = address.PCICount
+	pciAddressCount := h.Address.PCICount
 
-	for _, nicTmp := range input.NIC {
+	for _, nicTmp := range h.Input.NIC {
 		if nicTmp.MAC == "" {
-			nicTmp.MAC = mac.GenerateMacAddress()
+			mac, err := h.generateMac()
+			if err != nil {
+				return nics, fmt.Errorf("MAC Address Generate Error: %s", err)
+			}
+			nicTmp.MAC = mac
 		}
 
 		tmpAddressCount := pciAddressCount
@@ -26,7 +29,9 @@ func XmlGenerate(input vm.VirtualMachine, address vm.Address) ([]libVirtXml.Doma
 		}))
 	}
 
-	return nics, vm.Address{PCICount: pciAddressCount}, nil
+	h.Address.PCICount = pciAddressCount
+
+	return nics, nil
 }
 
 func generateTemplate(xmlStruct nic.GenerateNICXml) *libVirtXml.DomainInterface {

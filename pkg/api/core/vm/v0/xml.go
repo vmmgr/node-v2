@@ -22,7 +22,12 @@ func xmlGenerate(input vm.VirtualMachine) (*libVirtXml.Domain, error) {
 	}
 
 	// nic xmlの生成
-	nics, address, err := nic.XmlGenerate(input, address)
+	hnic := nic.NewNICHandler(nic.NICHandler{
+		Conn:    nil,
+		Input:   input,
+		Address: &address,
+	})
+	nics, err := hnic.XmlGenerate()
 	if err != nil {
 		return nil, err
 	}
