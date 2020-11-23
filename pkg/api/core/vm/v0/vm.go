@@ -34,6 +34,7 @@ func (h *VMHandler) Add(c *gin.Context) {
 	}
 	log.Println(err)
 
+	// VNC Portが0の場合、自動生成を行う
 	if input.VNCPort == 0 {
 		vnc, err := h.generateVNC()
 		if err != nil {
