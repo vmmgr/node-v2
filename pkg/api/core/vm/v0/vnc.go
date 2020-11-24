@@ -19,7 +19,7 @@ type generateVNC struct {
 }
 
 func (h *VMHandler) generateVNC() (generateVNC, error) {
-	doms, err := h.conn.ListAllDomains(libvirt.CONNECT_LIST_DOMAINS_ACTIVE | libvirt.CONNECT_LIST_DOMAINS_INACTIVE)
+	doms, err := h.Conn.ListAllDomains(libvirt.CONNECT_LIST_DOMAINS_ACTIVE | libvirt.CONNECT_LIST_DOMAINS_INACTIVE)
 	log.Println(doms)
 	if err != nil {
 		log.Println(err)

@@ -8,7 +8,7 @@ import (
 	"github.com/vmmgr/node/pkg/api/core/vm"
 )
 
-func xmlGenerate(input vm.VirtualMachine) (*libVirtXml.Domain, error) {
+func (h *VMHandler) xmlGenerate() (*libVirtXml.Domain, error) {
 
 	uuid, err := gen.GenerateUUID()
 	if err != nil {
@@ -16,18 +16,23 @@ func xmlGenerate(input vm.VirtualMachine) (*libVirtXml.Domain, error) {
 	}
 
 	// storage xmlの生成
-	disks, address, err := storage.XmlGenerate(input)
+	hStorage := storage.NewStorageHandler(storage.StorageHandler{
+		Conn:    h.Conn,
+		VM:      h.VM,
+		Address: &vm.Address{PCICount: 0, DiskCount: 0},
+	})
+	disks, err := hStorage.XmlGenerate()
 	if err != nil {
 		return nil, err
 	}
 
 	// nic xmlの生成
-	hnic := nic.NewNICHandler(nic.NICHandler{
-		Conn:    nil,
-		Input:   input,
-		Address: &address,
+	hNIC := nic.NewNICHandler(nic.NICHandler{
+		Conn:    h.Conn,
+		VM:      h.VM,
+		Address: hStorage.Address,
 	})
-	nics, err := hnic.XmlGenerate()
+	nics, err := hNIC.XmlGenerate()
 	if err != nil {
 		return nil, err
 	}
@@ -35,23 +40,23 @@ func xmlGenerate(input vm.VirtualMachine) (*libVirtXml.Domain, error) {
 	domCfg := &libVirtXml.Domain{
 		Type: "kvm",
 		Memory: &libVirtXml.DomainMemory{
-			Value:    input.Memory,
+			Value:    h.VM.Memory,
 			Unit:     "MB",
 			DumpCore: "on",
 		},
-		VCPU:        &libVirtXml.DomainVCPU{Value: input.VCPU},
-		CPU:         &libVirtXml.DomainCPU{Mode: vm.GetCPUMode(input.CPUMode)},
+		VCPU:        &libVirtXml.DomainVCPU{Value: h.VM.VCPU},
+		CPU:         &libVirtXml.DomainCPU{Mode: vm.GetCPUMode(h.VM.CPUMode)},
 		UUID:        uuid,
-		Name:        input.Name,
-		Title:       input.Name,
-		Description: input.Name,
+		Name:        h.VM.Name,
+		Title:       h.VM.Name,
+		Description: h.VM.Name,
 		OS: &libVirtXml.DomainOS{
 			BootDevices: []libVirtXml.DomainBootDevice{{Dev: "hd"}},
 			Kernel:      "",
 			//Initrd:  "/home/markus/workspace/worker-management/centos/kvm-centos.ks",
 			//Cmdline: "ks=file:/home/markus/workspace/worker-management/centos/kvm-centos.ks method=http://repo02.agfa.be/CentOS/7/os/x86_64/",
 			Type: &libVirtXml.DomainOSType{
-				Arch:    vm.GetArchConvert(input.OS.Arch),
+				Arch:    vm.GetArchConvert(h.VM.OS.Arch),
 				Machine: "pc-q35-4.2",
 				Type:    "hvm",
 			},
@@ -65,9 +70,9 @@ func xmlGenerate(input vm.VirtualMachine) (*libVirtXml.Domain, error) {
 			Graphics: []libVirtXml.DomainGraphic{
 				{
 					VNC: &libVirtXml.DomainGraphicVNC{
-						Port:      int(input.VNCPort),
-						WebSocket: int(input.WebSocketPort),
-						Keymap:    input.KeyMap,
+						Port:      int(h.VM.VNCPort),
+						WebSocket: int(h.VM.WebSocketPort),
+						Keymap:    h.VM.KeyMap,
 						Listen:    "0.0.0.0",
 					},
 				},

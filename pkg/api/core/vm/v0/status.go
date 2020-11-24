@@ -12,7 +12,7 @@ import (
 func (h *VMHandler) Startup(c *gin.Context) {
 	id := c.Param("id")
 
-	dom, err := h.conn.LookupDomainByUUIDString(id)
+	dom, err := h.Conn.LookupDomainByUUIDString(id)
 	if err != nil {
 		json.ResponseError(c, http.StatusInternalServerError, err)
 		return
@@ -51,7 +51,7 @@ func (h *VMHandler) Shutdown(c *gin.Context) {
 	}
 	log.Println(err)
 
-	dom, err := h.conn.LookupDomainByUUIDString(id)
+	dom, err := h.Conn.LookupDomainByUUIDString(id)
 	if err != nil {
 		json.ResponseError(c, http.StatusInternalServerError, err)
 		return
@@ -88,7 +88,7 @@ func (h *VMHandler) Shutdown(c *gin.Context) {
 func (h *VMHandler) Reset(c *gin.Context) {
 	id := c.Param("id")
 
-	dom, err := h.conn.LookupDomainByUUIDString(id)
+	dom, err := h.Conn.LookupDomainByUUIDString(id)
 	if err != nil {
 		json.ResponseError(c, http.StatusInternalServerError, err)
 		return

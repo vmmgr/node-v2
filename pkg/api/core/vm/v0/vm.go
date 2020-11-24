@@ -13,11 +13,12 @@ import (
 )
 
 type VMHandler struct {
-	conn *libvirt.Connect
+	Conn *libvirt.Connect
+	VM   vm.VirtualMachine
 }
 
-func NewVMHandler(connect *libvirt.Connect) *VMHandler {
-	return &VMHandler{conn: connect}
+func NewVMHandler(input VMHandler) *VMHandler {
+	return &VMHandler{Conn: input.Conn, VM: input.VM}
 }
 
 func (h *VMHandler) Add(c *gin.Context) {
@@ -44,7 +45,10 @@ func (h *VMHandler) Add(c *gin.Context) {
 		input.WebSocketPort = uint(vnc.WebSocketPort)
 	}
 
-	domCfg, err := xmlGenerate(input)
+	//メソッドにVM情報を代入
+	h.VM = input
+
+	domCfg, err := h.xmlGenerate()
 	if err != nil {
 		log.Println(err)
 		json.ResponseError(c, http.StatusBadRequest, err)
@@ -60,7 +64,7 @@ func (h *VMHandler) Add(c *gin.Context) {
 
 	fmt.Println(xml)
 
-	dom, err := h.conn.DomainDefineXML(xml)
+	dom, err := h.Conn.DomainDefineXML(xml)
 	if err != nil {
 		json.ResponseError(c, http.StatusInternalServerError, err)
 		return
@@ -81,7 +85,7 @@ func (h *VMHandler) Delete(c *gin.Context) {
 
 	id := c.Param("id")
 
-	dom, err := h.conn.LookupDomainByUUIDString(id)
+	dom, err := h.Conn.LookupDomainByUUIDString(id)
 	if err != nil {
 		json.ResponseError(c, http.StatusInternalServerError, err)
 		return
@@ -119,7 +123,7 @@ func (h *VMHandler) Update(c *gin.Context) {
 func (h *VMHandler) Get(c *gin.Context) {
 	id := c.Param("id")
 
-	dom, err := h.conn.LookupDomainByUUIDString(id)
+	dom, err := h.Conn.LookupDomainByUUIDString(id)
 	if err != nil {
 		json.ResponseError(c, http.StatusInternalServerError, err)
 		return
@@ -151,7 +155,7 @@ func (h *VMHandler) Get(c *gin.Context) {
 func (h *VMHandler) GetStatus(c *gin.Context) {
 	id := c.Param("id")
 
-	dom, err := h.conn.LookupDomainByUUIDString(id)
+	dom, err := h.Conn.LookupDomainByUUIDString(id)
 	if err != nil {
 		json.ResponseError(c, http.StatusInternalServerError, err)
 		return
@@ -187,7 +191,7 @@ func (h *VMHandler) GetStatus(c *gin.Context) {
 }
 
 func (h *VMHandler) GetAll(c *gin.Context) {
-	doms, err := h.conn.ListAllDomains(libvirt.CONNECT_LIST_DOMAINS_ACTIVE | libvirt.CONNECT_LIST_DOMAINS_INACTIVE)
+	doms, err := h.Conn.ListAllDomains(libvirt.CONNECT_LIST_DOMAINS_ACTIVE | libvirt.CONNECT_LIST_DOMAINS_INACTIVE)
 	log.Println(doms)
 	if err != nil {
 		log.Println(err)
