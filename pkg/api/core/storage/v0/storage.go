@@ -10,6 +10,7 @@ import (
 	"github.com/vmmgr/node/pkg/api/meta/json"
 	"log"
 	"net/http"
+	"os"
 )
 
 type StorageHandler struct {
@@ -40,7 +41,16 @@ func (h *StorageHandler) Add(c *gin.Context) {
 
 	for _, tmpConf := range config.Conf.Storage {
 		if tmpConf.Type == input.PathType {
-			path = tmpConf.Path + "/" + input.Path
+			if input.VMName == "" {
+				path = tmpConf.Path + "/" + input.Path
+			} else {
+				if err := os.Mkdir(tmpConf.Path+"/"+input.VMName, 0775); err != nil {
+					log.Println(err)
+					json.ResponseError(c, http.StatusInternalServerError, err)
+					return
+				}
+				path = tmpConf.Path + "/" + input.VMName + "/" + input.Path
+			}
 		}
 	}
 
@@ -51,7 +61,7 @@ func (h *StorageHandler) Add(c *gin.Context) {
 		return
 	}
 
-	if fileExistsCheck(path) {
+	if FileExistsCheck(path) {
 		json.ResponseError(c, http.StatusNotFound, fmt.Errorf("Error: file already exists... "))
 		return
 	}
@@ -99,13 +109,13 @@ func (h *StorageHandler) ConvertImage(c *gin.Context) {
 	}
 
 	// sourceファイルの確認
-	if !fileExistsCheck(input.SrcFile) {
+	if !FileExistsCheck(input.SrcFile) {
 		json.ResponseError(c, http.StatusNotFound, fmt.Errorf("Error: file no exists... "))
 		return
 	}
 
 	// Destinationファイルの確認
-	if fileExistsCheck(input.DstFile) {
+	if FileExistsCheck(input.DstFile) {
 		json.ResponseError(c, http.StatusInternalServerError, fmt.Errorf("Error: file already exists... "))
 		return
 	}
@@ -127,7 +137,7 @@ func (h *StorageHandler) InfoImage(c *gin.Context) {
 	}
 
 	// sourceファイルの確認
-	if !fileExistsCheck(input.SrcFile) {
+	if !FileExistsCheck(input.SrcFile) {
 		json.ResponseError(c, http.StatusNotFound, fmt.Errorf("Error: file no exists... "))
 		return
 	}

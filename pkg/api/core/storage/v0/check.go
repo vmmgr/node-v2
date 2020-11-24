@@ -4,7 +4,7 @@ import (
 	"os"
 )
 
-func fileExistsCheck(path string) bool {
+func FileExistsCheck(path string) bool {
 	if _, err := os.Stat(path); err != nil {
 		return false
 	} else {

@@ -51,11 +51,12 @@ func generateTemplate(xmlStruct storage.GenerateStorageXml) *libVirtXml.DomainDi
 
 	domDisk := libVirtXml.DomainDisk{}
 	var dev string
+	var bus string
 	// CDROM
-	if xmlStruct.Storage.Type == 0 {
+	if xmlStruct.Storage.Type == 1 {
 		dev = "sda"
-
-		domDisk.Target = &libVirtXml.DomainDiskTarget{Bus: "sata"}
+		bus = "sata"
+		domDisk.Device = "cdrom"
 		domDisk.Address = &libVirtXml.DomainAddress{
 			Drive: &libVirtXml.DomainAddressDrive{
 				Controller: &[]uint{0}[0],
@@ -67,8 +68,7 @@ func generateTemplate(xmlStruct storage.GenerateStorageXml) *libVirtXml.DomainDi
 		// Boot Disk(SATA)
 	} else if xmlStruct.Storage.Type == 11 {
 		dev = "sda"
-
-		domDisk.Target = &libVirtXml.DomainDiskTarget{Bus: "sata"}
+		bus = "sata"
 		domDisk.Address = &libVirtXml.DomainAddress{
 			Drive: &libVirtXml.DomainAddressDrive{
 				Controller: &[]uint{0}[0],
@@ -79,8 +79,8 @@ func generateTemplate(xmlStruct storage.GenerateStorageXml) *libVirtXml.DomainDi
 		} // Boot Disk(IDE)
 	} else if xmlStruct.Storage.Type == 12 {
 		dev = "sda"
+		bus = "ide"
 
-		domDisk.Target = &libVirtXml.DomainDiskTarget{Bus: "ide"}
 		domDisk.Address = &libVirtXml.DomainAddress{
 			Drive: &libVirtXml.DomainAddressDrive{
 				Controller: &[]uint{0}[0],
@@ -91,8 +91,7 @@ func generateTemplate(xmlStruct storage.GenerateStorageXml) *libVirtXml.DomainDi
 		}
 	} else {
 		dev = "vda"
-
-		domDisk.Target = &libVirtXml.DomainDiskTarget{Bus: "virtio"}
+		bus = "virtio"
 		domDisk.Address = &libVirtXml.DomainAddress{
 			PCI: &libVirtXml.DomainAddressPCI{
 				Domain:   &[]uint{0}[0],
@@ -107,11 +106,18 @@ func generateTemplate(xmlStruct storage.GenerateStorageXml) *libVirtXml.DomainDi
 		domDisk.ReadOnly = &libVirtXml.DomainDiskReadOnly{}
 	}
 
-	domDisk.Target = &libVirtXml.DomainDiskTarget{Dev: dev[0:2] + string(dev[2]+uint8(xmlStruct.Number))}
+	domDisk.Target = &libVirtXml.DomainDiskTarget{Bus: bus, Dev: dev[0:2] + string(dev[2]+uint8(xmlStruct.Number))}
 	// Driver
-	domDisk.Driver = &libVirtXml.DomainDiskDriver{
-		Name: "qemu",
-		Type: storage.GetExtensionName(xmlStruct.Storage.FileType),
+	if xmlStruct.Storage.Type == 1 || xmlStruct.Storage.Type == 2 {
+		domDisk.Driver = &libVirtXml.DomainDiskDriver{
+			Name: "qemu",
+			Type: "raw",
+		}
+	} else {
+		domDisk.Driver = &libVirtXml.DomainDiskDriver{
+			Name: "qemu",
+			Type: storage.GetExtensionName(xmlStruct.Storage.FileType),
+		}
 	}
 	// File Path
 	domDisk.Source = &libVirtXml.DomainDiskSource{
