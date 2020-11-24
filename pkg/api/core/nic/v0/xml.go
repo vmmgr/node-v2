@@ -21,12 +21,11 @@ func (h *NICHandler) XmlGenerate() ([]libVirtXml.DomainInterface, error) {
 			nicTmp.MAC = mac
 		}
 
-		h.Address.PCICount++
-
 		nics = append(nics, *generateTemplate(nic.GenerateNICXml{
 			NIC:           nicTmp,
 			AddressNumber: h.Address.PCICount,
 		}))
+		h.Address.PCICount++
 	}
 
 	return nics, nil
