@@ -44,12 +44,14 @@ const (
 	NetworkConfigTypePhysical NetworkConfigType = "physical"
 )
 
+type NetworkCon struct {
+	Version int32         `yaml:"version"`
+	Config  NetworkConfig `yaml:"config"`
+}
+
 type NetworkConfig struct {
-	Version int32 `yaml:"version"`
-	Config  []struct {
-		Type       NetworkConfigType     `yaml:"type"`
-		Name       string                `yaml:"name"`
-		MacAddress string                `yaml:"mac_address"`
-		Subnets    []NetworkConfigSubnet `yaml:"subnets"`
-	} `yaml:"config"`
+	Type       NetworkConfigType     `yaml:"type"`
+	Name       string                `yaml:"name"`
+	MacAddress string                `yaml:"mac_address"`
+	Subnets    []NetworkConfigSubnet `yaml:"subnets"`
 }

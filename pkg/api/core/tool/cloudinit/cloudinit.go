@@ -13,9 +13,9 @@ import (
 
 type CloudInit struct {
 	DirPath       string
-	MetaData      MetaData      `json:"meta"`
-	UserData      UserData      `json:"user"`
-	NetworkConfig NetworkConfig `json:"network"`
+	MetaData      MetaData   `json:"meta"`
+	UserData      UserData   `json:"user"`
+	NetworkConfig NetworkCon `json:"network"`
 }
 
 func NewCloudInitHandler(input CloudInit) *CloudInit {
