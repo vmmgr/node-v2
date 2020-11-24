@@ -5,7 +5,8 @@ var Broadcast = make(chan FileTransfer)
 type Storage struct {
 	Mode       uint   `json:"modestorageTmp"` //0:Manual 1:From ImaCon
 	FromImaCon ImaCon `json:"from_imacon"`    //Imageをpullする際に使用するURL
-	Type       uint   `json:"type"`           //0: CDROM 1:Floppy (no support) 10:BootDev(VirtIO) 11: BootDev(SATA) 12: BootDev(IDE)
+	VMName     string `json:"vm_name"`        //VMNameがある場合は、Pathに追加する
+	Type       uint   `json:"type"`           //1: CDROM 2:Floppy (no support) 10:BootDev(VirtIO) 11: BootDev(SATA) 12: BootDev(IDE)
 	FileType   uint   `json:"filetype"`       //0:qcow2 1:img
 	GroupID    uint   `json:"group_id"`       //コントローラへの通知先で判別するためのGroupID ID=0の場合は管理者
 	UUID       string `json:"uuid"`           //コントローラへの通知先で判別するためのUUID
@@ -18,7 +19,7 @@ type Storage struct {
 }
 
 type VMStorage struct {
-	Type     uint   `json:"type"`      //0: CDROM 1:Floppy (no support) 10:BootDev(VirtIO) 11: BootDev(SATA) 12: BootDev(IDE)
+	Type     uint   `json:"type"`      //1: CDROM 2:Floppy (no support) 10:BootDev(VirtIO) 11: BootDev(SATA) 12: BootDev(IDE)
 	FileType uint   `json:"filetype"`  //0:qcow2 1:img
 	PathType uint   `json:"path_type"` //node側のストレージの種類 0~9:SSD 10~19:HDD 20~29:NVMe 100~109:SSD(iSCSI) 110~119:SSD(iSCSI) 120~129:NVme(iSCSI)
 	Path     string `json:"path"`      //node側のパス
