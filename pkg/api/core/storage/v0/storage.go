@@ -6,17 +6,25 @@ import (
 	"github.com/libvirt/libvirt-go"
 	"github.com/vmmgr/node/pkg/api/core/storage"
 	"github.com/vmmgr/node/pkg/api/core/tool/config"
+	"github.com/vmmgr/node/pkg/api/core/vm"
 	"github.com/vmmgr/node/pkg/api/meta/json"
 	"log"
 	"net/http"
 )
 
 type StorageHandler struct {
-	conn *libvirt.Connect
+	Conn    *libvirt.Connect
+	Input   storage.Storage
+	VM      vm.VirtualMachine
+	Address *vm.Address
+	Auth    *storage.SFTPAuth
+	SrcPath string
+	DstPath string
 }
 
-func NewStorageHandler(connect *libvirt.Connect) *StorageHandler {
-	return &StorageHandler{conn: connect}
+func NewStorageHandler(handler StorageHandler) *StorageHandler {
+	return &StorageHandler{Conn: handler.Conn, Input: handler.Input, VM: handler.VM, Address: handler.Address,
+		Auth: handler.Auth, SrcPath: handler.SrcPath, DstPath: handler.DstPath}
 }
 
 func (h *StorageHandler) Add(c *gin.Context) {
@@ -64,9 +72,16 @@ func (h *StorageHandler) Add(c *gin.Context) {
 		go func() {
 			log.Println(input.FromImaCon.Path)
 			log.Println(input.Path)
-			err := sftpRemoteToLocal(storage.SFTPAuth{
+
+			//メソッドに各種情報の追加
+			h.Auth = &storage.SFTPAuth{
 				IP: input.FromImaCon.IP, User: config.Conf.ImaCon.User, Pass: config.Conf.ImaCon.Pass,
-			}, input.FromImaCon.Path, path, input)
+			}
+			h.SrcPath = input.FromImaCon.Path
+			h.DstPath = path
+			h.Input = input
+
+			err := h.sftpRemoteToLocal()
 			log.Println(err)
 		}()
 

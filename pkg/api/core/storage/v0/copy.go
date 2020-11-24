@@ -32,15 +32,15 @@ func (p *Progress) Write(data []byte) (int, error) {
 	return n, nil
 }
 
-func sftpRemoteToLocal(auth storage.SFTPAuth, srcRemotePath, dstLocalPath string, input storage.Storage) error {
+func (h *StorageHandler) sftpRemoteToLocal() error {
 	//config := &ssh.ClientConfig{User: auth.User, HostKeyCallback: nil, Auth: []ssh.AuthMethod{ssh.Password(auth.Pass)}}
-	config := &ssh.ClientConfig{User: auth.User, HostKeyCallback: ssh.InsecureIgnoreHostKey(),
-		Auth: []ssh.AuthMethod{ssh.Password(auth.Pass)}}
+	config := &ssh.ClientConfig{User: h.Auth.User, HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+		Auth: []ssh.AuthMethod{ssh.Password(h.Auth.Pass)}}
 	config.SetDefaults()
-	sshConn, err := ssh.Dial("tcp", auth.IP+":22", config)
+	sshConn, err := ssh.Dial("tcp", h.Auth.IP+":22", config)
 	if err != nil {
 		log.Println(err)
-		sendServer(input, dstLocalPath, 0, err)
+		sendServer(h.Input, h.DstPath, 0, err)
 		return err
 	}
 	defer sshConn.Close()
@@ -49,32 +49,32 @@ func sftpRemoteToLocal(auth storage.SFTPAuth, srcRemotePath, dstLocalPath string
 	client, err := sftp.NewClient(sshConn)
 	if err != nil {
 		log.Println(err)
-		sendServer(input, dstLocalPath, 0, err)
+		sendServer(h.Input, h.DstPath, 0, err)
 		return err
 	}
 	defer client.Close()
 
 	// dstFileの作成
-	dstFile, err := os.Create(dstLocalPath)
+	dstFile, err := os.Create(h.DstPath)
 	if err != nil {
 		log.Println(err)
-		sendServer(input, dstLocalPath, 0, err)
+		sendServer(h.Input, h.DstPath, 0, err)
 		return err
 	}
 	defer dstFile.Close()
 
 	// srcFileをOpen
-	srcFile, err := client.Open(srcRemotePath)
+	srcFile, err := client.Open(h.SrcPath)
 	if err != nil {
 		log.Println(err)
-		sendServer(input, dstLocalPath, 0, err)
+		sendServer(h.Input, h.DstPath, 0, err)
 		return err
 	}
 
 	file, err := srcFile.Stat()
 	if err != nil {
 		log.Println("Error: file gateway error")
-		sendServer(input, dstLocalPath, 0, err)
+		sendServer(h.Input, h.DstPath, 0, err)
 		return err
 	}
 
@@ -103,7 +103,7 @@ func sftpRemoteToLocal(auth storage.SFTPAuth, srcRemotePath, dstLocalPath string
 		for {
 			if p.size != p.total {
 				<-time.NewTimer(1 * time.Second).C
-				sendServer(input, dstLocalPath, int(float64(p.size)/float64(p.total)*100), nil)
+				sendServer(h.Input, h.DstPath, int(float64(p.size)/float64(p.total)*100), nil)
 			} else {
 				return
 			}
@@ -114,7 +114,7 @@ func sftpRemoteToLocal(auth storage.SFTPAuth, srcRemotePath, dstLocalPath string
 	bytes, err := io.Copy(dstFile, io.TeeReader(srcFile, &p))
 	if err != nil {
 		log.Println(err)
-		sendServer(input, dstLocalPath, 0, err)
+		sendServer(h.Input, h.DstPath, 0, err)
 		return err
 	}
 	bar.Set(100)
@@ -124,10 +124,10 @@ func sftpRemoteToLocal(auth storage.SFTPAuth, srcRemotePath, dstLocalPath string
 	err = dstFile.Sync()
 	if err != nil {
 		log.Println(err)
-		sendServer(input, dstLocalPath, 0, err)
+		sendServer(h.Input, h.DstPath, 0, err)
 		return err
 	}
-	sendServer(input, dstLocalPath, 100, nil)
+	sendServer(h.Input, h.DstPath, 100, nil)
 
 	return nil
 }

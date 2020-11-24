@@ -4,11 +4,9 @@ import (
 	"fmt"
 	libVirtXml "github.com/libvirt/libvirt-go-xml"
 	"github.com/vmmgr/node/pkg/api/core/storage"
-	"github.com/vmmgr/node/pkg/api/core/vm"
-	"log"
 )
 
-func XmlGenerate(input vm.VirtualMachine) ([]libVirtXml.DomainDisk, vm.Address, error) {
+func (h *StorageHandler) XmlGenerate() ([]libVirtXml.DomainDisk, error) {
 
 	var disks []libVirtXml.DomainDisk
 
@@ -16,49 +14,36 @@ func XmlGenerate(input vm.VirtualMachine) ([]libVirtXml.DomainDisk, vm.Address, 
 	var virtIOCount uint = 0
 	var otherCount uint = 0
 
-	var pciAddressCount uint = 0
-	var diskAddressCount uint = 0
-
-	log.Println(input.Storage)
-
-	for _, storageTmp := range input.Storage {
+	for _, storageTmp := range h.VM.Storage {
 		if storageTmp.Path == "" {
-			return nil, vm.Address{}, fmt.Errorf("black: storage path")
+			return nil, fmt.Errorf("black: storage path")
 		}
 
-		var tmpCount uint
-		var tmpAddressCount uint
+		var Number uint
+		var AddressNumber uint
 
 		// VirtIOの場合はVirtIO Countに数字を代入＋加算する
 		if storageTmp.Type == 10 {
-			tmpCount = virtIOCount
-			tmpAddressCount = pciAddressCount
-			pciAddressCount++
+			Number = virtIOCount
+			AddressNumber = h.Address.PCICount
+			h.Address.PCICount++
 			virtIOCount++
 		} else {
-			tmpCount = otherCount
+			Number = otherCount
 			// VirtIO以外の場合はOther Countに数字を代入＋加算する
-			tmpAddressCount = diskAddressCount
+			AddressNumber = h.Address.DiskCount
 			otherCount++
-			diskAddressCount++
+			h.Address.DiskCount++
 		}
-
-		fmt.Println(storageTmp)
 
 		disks = append(disks, *generateTemplate(storage.GenerateStorageXml{
 			Storage:       storageTmp,
-			Number:        tmpCount,
-			AddressNumber: tmpAddressCount,
+			Number:        Number,
+			AddressNumber: AddressNumber,
 		}))
 	}
 
-	log.Println(disks)
-
-	return disks, vm.Address{
-		PCICount:  pciAddressCount,
-		DiskCount: diskAddressCount,
-	}, nil
-
+	return disks, nil
 }
 
 func generateTemplate(xmlStruct storage.GenerateStorageXml) *libVirtXml.DomainDisk {
