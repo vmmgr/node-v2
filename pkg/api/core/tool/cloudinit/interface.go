@@ -45,8 +45,8 @@ const (
 )
 
 type NetworkCon struct {
-	Version int32         `yaml:"version"`
-	Config  NetworkConfig `yaml:"config"`
+	Version int32           `yaml:"version"`
+	Config  []NetworkConfig `yaml:"config"`
 }
 
 type NetworkConfig struct {
