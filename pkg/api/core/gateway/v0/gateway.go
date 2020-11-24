@@ -18,8 +18,8 @@ func NodeAPI() {
 	}
 	defer conn.Close()
 
-	vmh := vm.NewVMHandler(conn)
-	storageh := storage.NewStorageHandler(conn)
+	vmh := vm.NewVMHandler(vm.VMHandler{Conn: conn})
+	storageh := storage.NewStorageHandler(storage.StorageHandler{Conn: conn})
 
 	router := gin.Default()
 	router.Use(cors)
