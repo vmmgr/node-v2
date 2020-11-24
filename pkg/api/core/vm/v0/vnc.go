@@ -20,7 +20,6 @@ type generateVNC struct {
 
 func (h *VMHandler) generateVNC() (generateVNC, error) {
 	doms, err := h.Conn.ListAllDomains(libvirt.CONNECT_LIST_DOMAINS_ACTIVE | libvirt.CONNECT_LIST_DOMAINS_INACTIVE)
-	log.Println(doms)
 	if err != nil {
 		log.Println(err)
 	}
@@ -36,8 +35,6 @@ func (h *VMHandler) generateVNC() (generateVNC, error) {
 		xml.Unmarshal([]byte(xmlString), &t)
 
 		if len(t.Devices.Graphics) != 0 {
-
-			log.Println(len(t.Devices.Graphics))
 			for _, tmp := range t.Devices.Graphics {
 				if tmp.VNC != nil {
 					//5900-6400
@@ -52,9 +49,6 @@ func (h *VMHandler) generateVNC() (generateVNC, error) {
 	//昇順に並び替える
 	sort.Ints(vncPort)
 	sort.Ints(webSocketPort)
-
-	log.Println(vncPort)
-	log.Println(webSocketPort)
 
 	//ポート番号
 	vncPortCount := vncPortStart
