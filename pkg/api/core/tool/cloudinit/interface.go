@@ -21,7 +21,7 @@ type UsersData struct {
 type UserData struct {
 	Password  string `yaml:"password"`
 	ChPasswd  string `yaml:"chpasswd"`
-	sshPwAuth bool   `yaml:"ssh_pwauth"`
+	SshPwAuth bool   `yaml:"ssh_pwauth"`
 }
 
 type NetworkConfigSubnetType string
