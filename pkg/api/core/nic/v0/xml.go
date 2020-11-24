@@ -9,27 +9,25 @@ import (
 func (h *NICHandler) XmlGenerate() ([]libVirtXml.DomainInterface, error) {
 	var nics []libVirtXml.DomainInterface
 
-	pciAddressCount := h.Address.PCICount
+	var usedMAC []string
 
-	for _, nicTmp := range h.Input.NIC {
+	for _, nicTmp := range h.VM.NIC {
 		if nicTmp.MAC == "" {
-			mac, err := h.generateMac()
+			mac, err := h.generateMac(usedMAC)
 			if err != nil {
 				return nics, fmt.Errorf("MAC Address Generate Error: %s", err)
 			}
+			usedMAC = append(usedMAC, mac)
 			nicTmp.MAC = mac
 		}
 
-		tmpAddressCount := pciAddressCount
-		pciAddressCount++
+		h.Address.PCICount++
 
 		nics = append(nics, *generateTemplate(nic.GenerateNICXml{
 			NIC:           nicTmp,
-			AddressNumber: tmpAddressCount,
+			AddressNumber: h.Address.PCICount,
 		}))
 	}
-
-	h.Address.PCICount = pciAddressCount
 
 	return nics, nil
 }

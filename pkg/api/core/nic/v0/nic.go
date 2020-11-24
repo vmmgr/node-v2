@@ -7,7 +7,6 @@ import (
 	libVirtXml "github.com/libvirt/libvirt-go-xml"
 	"github.com/vmmgr/node/pkg/api/core/tool/config"
 	"github.com/vmmgr/node/pkg/api/core/vm"
-	"log"
 	"sort"
 	"strconv"
 	"strings"
@@ -18,12 +17,12 @@ var startMAC = 10
 
 type NICHandler struct {
 	Conn    *libvirt.Connect
-	Input   vm.VirtualMachine
+	VM      vm.VirtualMachine
 	Address *vm.Address
 }
 
 func NewNICHandler(handler NICHandler) *NICHandler {
-	return &NICHandler{Conn: handler.Conn, Input: handler.Input, Address: handler.Address}
+	return &NICHandler{Conn: handler.Conn, VM: handler.VM, Address: handler.Address}
 }
 
 func Network() {
@@ -95,7 +94,7 @@ func Network() {
 	//}
 }
 
-func (h *NICHandler) generateMac() (string, error) {
+func (h *NICHandler) generateMac(usedMAC []string) (string, error) {
 	var macs []int
 
 	doms, err := h.Conn.ListAllDomains(libvirt.CONNECT_LIST_DOMAINS_ACTIVE | libvirt.CONNECT_LIST_DOMAINS_INACTIVE)
@@ -115,9 +114,17 @@ func (h *NICHandler) generateMac() (string, error) {
 				if (mac[0] + mac[1]) == "5254" {
 					v, _ := strconv.ParseInt(mac[4]+mac[5], 16, 0)
 					macs = append(macs, int(v))
-					log.Println(v)
 				}
 			}
+		}
+	}
+
+	//割当済みMACアドレスを検索して、macsに値を代入
+	for _, tmp := range usedMAC {
+		mac := strings.Split(tmp, ":")
+		if (mac[0] + mac[1]) == "5254" {
+			v, _ := strconv.ParseInt(mac[4]+mac[5], 16, 0)
+			macs = append(macs, int(v))
 		}
 	}
 
