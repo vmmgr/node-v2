@@ -72,6 +72,8 @@ func (h *VMHandler) Add(c *gin.Context) {
 
 	err = dom.Create()
 	if err != nil {
+		// node側でエラーを表示
+		log.Println(err)
 		json.ResponseError(c, http.StatusInternalServerError, err)
 	} else {
 		json.ResponseOK(c, nil)
