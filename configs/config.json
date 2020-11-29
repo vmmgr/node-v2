@@ -15,13 +15,19 @@
     "ip": "127.0.0.1",
     "port": 8080,
     "mac": "52:54:00:00",
-    "machine": "pc-q35-4.2"
+    "machine": "pc-q35-4.2",
+    "emulator": "/usr/bin/qemu-system-x86_64"
   },
   "imacon": {
     "user": "user",
     "pass": "pass"
   },
   "storage": [
+    {
+      "id": 0,
+      "type": 0,
+      "path": "/home/yonedayuto/vm/0"
+    },
     {
       "id": 1,
       "type": 1,
