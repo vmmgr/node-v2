@@ -205,7 +205,7 @@ func (h *VMHandler) GetAll(c *gin.Context) {
 
 	for _, dom := range doms {
 		t := libVirtXml.Domain{}
-		_, stat, _ := dom.GetState()
+		stat, _, _ := dom.GetState()
 		xmlString, _ := dom.GetXMLDesc(libvirt.DOMAIN_XML_SECURE)
 		xml.Unmarshal([]byte(xmlString), &t)
 
