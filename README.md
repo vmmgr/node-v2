@@ -33,4 +33,8 @@ unix_sock_rw_perms= "0770"
 ### Machine一覧表示
 ```
 kvm -M help　(ubuntu)
+/usr/libexec/qemu-kvm -machine help (CentOS)
 ```
+
+### VNCポート、WebSocketポート
+WebSocketポートはVNCポート-500により
