@@ -28,10 +28,11 @@ type List struct {
 }
 
 type Node struct {
-	IP      string `json:"ip"`
-	Port    uint   `json:"port"`
-	MAC     string `json:"mac"`
-	Machine string `json:"machine"`
+	IP       string `json:"ip"`
+	Port     uint   `json:"port"`
+	MAC      string `json:"mac"`
+	Machine  string `json:"machine"`
+	Emulator string `json:"emulator"`
 }
 
 type ImaCon struct {

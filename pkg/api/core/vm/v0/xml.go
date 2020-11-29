@@ -106,12 +106,12 @@ func (h *VMHandler) xmlGenerate() (*libVirtXml.Domain, error) {
 			//Cmdline: "ks=file:/home/markus/workspace/worker-management/centos/kvm-centos.ks method=http://repo02.agfa.be/CentOS/7/os/x86_64/",
 			Type: &libVirtXml.DomainOSType{
 				Arch:    vm.GetArchConvert(h.VM.OS.Arch),
-				Machine: "pc-q35-4.2",
+				Machine: config.Conf.Node.Machine,
 				Type:    "hvm",
 			},
 		},
 		Devices: &libVirtXml.DomainDeviceList{
-			Emulator: "/usr/bin/qemu-system-x86_64",
+			Emulator: config.Conf.Node.Emulator,
 			Inputs: []libVirtXml.DomainInput{
 				{Type: "mouse", Bus: "ps2"},
 				{Type: "keyboard", Bus: "ps2"},
