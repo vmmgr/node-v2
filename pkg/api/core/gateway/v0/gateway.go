@@ -42,6 +42,7 @@ func NodeAPI() {
 			v1.PUT("/vm/:id/power", vmh.Startup)
 			v1.GET("/vm/:id/power", vmh.GetStatus)
 			v1.DELETE("/vm/:id/power", vmh.Shutdown)
+			v1.PUT("/vm/:id/reset", vmh.Reset)
 
 			// VNC
 
