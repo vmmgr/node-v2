@@ -41,6 +41,9 @@ func (c *CloudInit) Generate() error {
 		return err
 	}
 
+	// NetworkConfig Version指定
+	c.NetworkConfig.Version = 1
+
 	networkConfigYAML, err := yaml.Marshal(c.NetworkConfig)
 	if err != nil {
 		return err
