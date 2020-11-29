@@ -35,7 +35,7 @@ func (h *VMHandler) xmlGenerate() (*libVirtXml.Domain, error) {
 
 	// CloudInit周りの処理
 	if h.VM.CloudInitApply {
-		directory := config.Conf.Storage[0].Path + "/" + h.VM.Name
+		directory := config.Conf.Storage[0].Path + "/" + uuid
 
 		if !file.ExistsCheck(directory) {
 			if err := os.Mkdir(directory, 0755); err != nil {
