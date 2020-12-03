@@ -19,7 +19,7 @@
 
 ### Install
 ```
-sudo apt install qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils
+sudo apt install qemu-kvm libvirt-daemon-system libvirt-daemon libvirt-clients bridge-utils libosinfo-bin libguestfs-tools virt-top cloud-image-utils
 ```
 
 ### libvirtの設定
