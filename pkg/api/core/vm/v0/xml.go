@@ -99,6 +99,10 @@ func (h *VMHandler) xmlGenerate() (*libVirtXml.Domain, error) {
 		Name:        h.VM.Name,
 		Title:       h.VM.Name,
 		Description: h.VM.Name,
+		Features: &libVirtXml.DomainFeatureList{
+			ACPI: &libVirtXml.DomainFeature{},
+			APIC: &libVirtXml.DomainFeatureAPIC{},
+		},
 		OS: &libVirtXml.DomainOS{
 			BootDevices: []libVirtXml.DomainBootDevice{{Dev: "hd"}},
 			Kernel:      "",
@@ -124,6 +128,19 @@ func (h *VMHandler) xmlGenerate() (*libVirtXml.Domain, error) {
 						Keymap:    h.VM.KeyMap,
 						Listen:    "0.0.0.0",
 					},
+				},
+			},
+			Videos: []libVirtXml.DomainVideo{
+				{
+					Model: libVirtXml.DomainVideoModel{
+						Type:    "qxl",
+						Heads:   1,
+						Ram:     65536,
+						VRam:    65536,
+						VGAMem:  16384,
+						Primary: "yes",
+					},
+					Alias: &libVirtXml.DomainAlias{Name: "video0"},
 				},
 			},
 			Disks:      disks,
