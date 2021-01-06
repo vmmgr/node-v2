@@ -11,7 +11,7 @@ type VirtualMachine struct {
 	Name           string              `json:"name"`
 	UUID           string              `json:"uuid"`
 	Memory         uint                `json:"memory"`
-	CPUMode        uint                `json:"cpu_mode"`
+	CPUMode        uint                `json:"cpu_mode"` //0:custom 1:host-model 2:pass-through
 	VCPU           uint                `json:"vcpu"`
 	OS             OS                  `json:"os"`
 	VNCPort        uint                `json:"vnc_port"`

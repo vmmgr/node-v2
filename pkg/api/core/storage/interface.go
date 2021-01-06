@@ -19,7 +19,7 @@ type Storage struct {
 }
 
 type VMStorage struct {
-	Type     uint   `json:"type"`      //1: CDROM 2:Floppy (no support) 10:BootDev(VirtIO) 11: BootDev(SATA) 12: BootDev(IDE)
+	Type     uint   `json:"type"`      //0:BootDev(VirtIO) 1: CDROM 2:Floppy (no support) 11: BootDev(SATA) 12: BootDev(IDE)
 	FileType uint   `json:"filetype"`  //0:qcow2 1:img
 	PathType uint   `json:"path_type"` //node側のストレージの種類 0~9:SSD 10~19:HDD 20~29:NVMe 100~109:SSD(iSCSI) 110~119:SSD(iSCSI) 120~129:NVme(iSCSI)
 	Path     string `json:"path"`      //node側のパス
