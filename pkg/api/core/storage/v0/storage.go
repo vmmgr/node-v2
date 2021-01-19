@@ -93,8 +93,6 @@ func (h *StorageHandler) Add(c *gin.Context) {
 
 			err := h.sftpRemoteToLocal()
 			log.Println(err)
-			_, err = capacityExpansion(h.DstPath, h.Input.Capacity)
-			log.Print(err)
 		}()
 
 		json.ResponseOK(c, out)
