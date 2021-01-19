@@ -37,3 +37,12 @@ func infoImage(filePath string) (string, error) {
 	log.Println(string(out))
 	return string(out), nil
 }
+
+func capacityExpansion(filePath string, size uint) (string, error) {
+	out, err := exec.Command("qemu-img", "resize", filePath, strconv.Itoa(int(size))).Output()
+	if err != nil {
+		return "", err
+	}
+	log.Println(string(out))
+	return string(out), nil
+}
