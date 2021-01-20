@@ -127,9 +127,13 @@ func (h *StorageHandler) sftpRemoteToLocal() error {
 		sendServer(h.Input, h.DstPath, 0, err)
 		return err
 	}
-	sendServer(h.Input, h.DstPath, 100, nil)
 	_, err = capacityExpansion(h.DstPath, h.Input.Capacity)
-	log.Print(err)
+	if err != nil {
+		log.Println("Error: disk capacity expansion")
+		log.Println(err)
+	}
+
+	sendServer(h.Input, h.DstPath, 100, nil)
 
 	return nil
 }
