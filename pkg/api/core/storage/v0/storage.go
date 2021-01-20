@@ -80,8 +80,8 @@ func (h *StorageHandler) Add(c *gin.Context) {
 	} else if input.Mode == 1 {
 		// ImaConからイメージ取得(時間がかかるので、go funcにて処理)
 		go func() {
-			log.Println(input.FromImaCon.Path)
-			log.Println(input.Path)
+			log.Println("From: " + input.FromImaCon.Path)
+			log.Println("To: " + path)
 
 			//メソッドに各種情報の追加
 			h.Auth = &storage.SFTPAuth{
