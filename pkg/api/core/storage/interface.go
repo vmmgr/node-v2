@@ -1,21 +1,21 @@
 package storage
 
-var Broadcast = make(chan FileTransfer)
+import "github.com/vmmgr/node/pkg/api/core/gateway"
+
+var Path = make(chan string)
 
 type Storage struct {
-	Mode       uint   `json:"modestorageTmp"` //0:Manual 1:From ImaCon
-	FromImaCon ImaCon `json:"from_imacon"`    //Imageをpullする際に使用するURL
-	VMName     string `json:"vm_name"`        //VMNameがある場合は、Pathに追加する
-	Type       uint   `json:"type"`           //1: CDROM 2:Floppy (no support) 10:BootDev(VirtIO) 11: BootDev(SATA) 12: BootDev(IDE)
-	FileType   uint   `json:"filetype"`       //0:qcow2 1:img
-	GroupID    uint   `json:"group_id"`       //コントローラへの通知先で判別するためのGroupID ID=0の場合は管理者
-	UUID       string `json:"uuid"`           //コントローラへの通知先で判別するためのUUID
-	Controller string `json:"controller"`     //コントローラへの通知先のIPアドレスとPort番号
-	PathType   uint   `json:"path_type"`      //node側のストレージの種類 0~9:SSD 10~19:HDD 20~29:NVMe 100~109:SSD(iSCSI) 110~119:SSD(iSCSI) 120~129:NVme(iSCSI)
-	Path       string `json:"path"`           //node側のパス
-	Capacity   uint   `json:"capacity"`       //容量
-	ReadOnly   bool   `json:"readonly"`       //Readonlyであるか
-	Boot       uint   `json:"boot"`
+	Info       gateway.Info `json:"info"`           //Info
+	Mode       uint         `json:"modestorageTmp"` //0:Manual 1:From ImaCon
+	FromImaCon ImaCon       `json:"from_imacon"`    //Imageをpullする際に使用するURL
+	VMName     string       `json:"vm_name"`        //VMNameがある場合は、Pathに追加する
+	Type       uint         `json:"type"`           //1: CDROM 2:Floppy (no support) 10:BootDev(VirtIO) 11: BootDev(SATA) 12: BootDev(IDE)
+	FileType   uint         `json:"filetype"`       //0:qcow2 1:img
+	PathType   uint         `json:"path_type"`      //node側のストレージの種類 0~9:SSD 10~19:HDD 20~29:NVMe 100~109:SSD(iSCSI) 110~119:SSD(iSCSI) 120~129:NVme(iSCSI)
+	Path       string       `json:"path"`           //node側のパス
+	Capacity   uint         `json:"capacity"`       //容量
+	ReadOnly   bool         `json:"readonly"`       //Readonlyであるか
+	Boot       uint         `json:"boot"`
 }
 
 type VMStorage struct {

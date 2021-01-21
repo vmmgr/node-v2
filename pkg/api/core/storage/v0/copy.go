@@ -1,14 +1,11 @@
 package v0
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/pkg/sftp"
 	"github.com/schollz/progressbar"
-	"github.com/vmmgr/controller/pkg/api/core/controller"
 	"github.com/vmmgr/node/pkg/api/core/storage"
-	"github.com/vmmgr/node/pkg/api/core/tool/client"
-	"github.com/vmmgr/node/pkg/api/core/tool/config"
+	node2 "github.com/vmmgr/node/pkg/api/core/tool/node"
 	"golang.org/x/crypto/ssh"
 	"io"
 	"log"
@@ -40,7 +37,6 @@ func (h *StorageHandler) sftpRemoteToLocal() error {
 	sshConn, err := ssh.Dial("tcp", h.Auth.IP+":22", config)
 	if err != nil {
 		log.Println(err)
-		sendServer(h.Input, h.DstPath, 0, err)
 		return err
 	}
 	defer sshConn.Close()
@@ -49,7 +45,6 @@ func (h *StorageHandler) sftpRemoteToLocal() error {
 	client, err := sftp.NewClient(sshConn)
 	if err != nil {
 		log.Println(err)
-		sendServer(h.Input, h.DstPath, 0, err)
 		return err
 	}
 	defer client.Close()
@@ -58,7 +53,6 @@ func (h *StorageHandler) sftpRemoteToLocal() error {
 	dstFile, err := os.Create(h.DstPath)
 	if err != nil {
 		log.Println(err)
-		sendServer(h.Input, h.DstPath, 0, err)
 		return err
 	}
 	defer dstFile.Close()
@@ -67,14 +61,12 @@ func (h *StorageHandler) sftpRemoteToLocal() error {
 	srcFile, err := client.Open(h.SrcPath)
 	if err != nil {
 		log.Println(err)
-		sendServer(h.Input, h.DstPath, 0, err)
 		return err
 	}
 
 	file, err := srcFile.Stat()
 	if err != nil {
 		log.Println("Error: file gateway error")
-		sendServer(h.Input, h.DstPath, 0, err)
 		return err
 	}
 
@@ -103,7 +95,7 @@ func (h *StorageHandler) sftpRemoteToLocal() error {
 		for {
 			if p.size != p.total {
 				<-time.NewTimer(1 * time.Second).C
-				sendServer(h.Input, h.DstPath, int(float64(p.size)/float64(p.total)*100), nil)
+				node2.SendServer(h.Input.Info, 0, uint(float64(p.size)/float64(p.total)*100), "Progress: Image Copy", nil)
 			} else {
 				return
 			}
@@ -114,7 +106,6 @@ func (h *StorageHandler) sftpRemoteToLocal() error {
 	bytes, err := io.Copy(dstFile, io.TeeReader(srcFile, &p))
 	if err != nil {
 		log.Println(err)
-		sendServer(h.Input, h.DstPath, 0, err)
 		return err
 	}
 	bar.Set(100)
@@ -124,7 +115,6 @@ func (h *StorageHandler) sftpRemoteToLocal() error {
 	err = dstFile.Sync()
 	if err != nil {
 		log.Println(err)
-		sendServer(h.Input, h.DstPath, 0, err)
 		return err
 	}
 	_, err = capacityExpansion(h.DstPath, h.Input.Capacity)
@@ -133,7 +123,7 @@ func (h *StorageHandler) sftpRemoteToLocal() error {
 		log.Println(err)
 	}
 
-	sendServer(h.Input, h.DstPath, 100, nil)
+	node2.SendServer(h.Input.Info, 0, 100, "Success: Image Copy", nil)
 
 	return nil
 }
@@ -225,18 +215,4 @@ func fileCopy(srcFile, dstFile, controller string) error {
 	}
 
 	return nil
-}
-
-func sendServer(input storage.Storage, filePath string, progress int, error error) {
-	for _, srv := range config.Conf.Controller.List {
-		sendBody, _ := json.Marshal(controller.Node{
-			GroupID:  input.GroupID,
-			UUID:     input.UUID,
-			FilePath: filePath,
-			Progress: uint(progress),
-			Error:    error,
-			Comment:  "storage creating...",
-		})
-		client.Post(srv.URL, sendBody)
-	}
 }

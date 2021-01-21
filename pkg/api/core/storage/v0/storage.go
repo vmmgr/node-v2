@@ -6,6 +6,7 @@ import (
 	"github.com/libvirt/libvirt-go"
 	"github.com/vmmgr/node/pkg/api/core/storage"
 	"github.com/vmmgr/node/pkg/api/core/tool/config"
+	"github.com/vmmgr/node/pkg/api/core/tool/node"
 	"github.com/vmmgr/node/pkg/api/core/vm"
 	"github.com/vmmgr/node/pkg/api/meta/json"
 	"log"
@@ -28,14 +29,7 @@ func NewStorageHandler(handler StorageHandler) *StorageHandler {
 		Auth: handler.Auth, SrcPath: handler.SrcPath, DstPath: handler.DstPath}
 }
 
-func (h *StorageHandler) Add(c *gin.Context) {
-	var input storage.Storage
-
-	err := c.BindJSON(&input)
-	if err != nil {
-		json.ResponseError(c, http.StatusBadRequest, err)
-		return
-	}
+func (h *StorageHandler) Add(input storage.Storage) error {
 
 	path := ""
 
@@ -46,8 +40,7 @@ func (h *StorageHandler) Add(c *gin.Context) {
 			} else {
 				if err := os.Mkdir(tmpConf.Path+"/"+input.VMName, 0775); err != nil {
 					log.Println(err)
-					json.ResponseError(c, http.StatusInternalServerError, err)
-					return
+					return err
 				}
 				path = tmpConf.Path + "/" + input.VMName + "/" + input.Path
 			}
@@ -57,26 +50,23 @@ func (h *StorageHandler) Add(c *gin.Context) {
 	log.Println(path)
 	// Pathが見つからない場合
 	if path == "" {
-		json.ResponseError(c, http.StatusNotFound, fmt.Errorf("Error: Not found... "))
-		return
+		return fmt.Errorf("Error: Not found... ")
 	}
 
 	if FileExistsCheck(path) {
-		json.ResponseError(c, http.StatusNotFound, fmt.Errorf("Error: file already exists... "))
-		return
+		return fmt.Errorf("Error: file already exists... ")
 	}
-
-	var out string
 
 	// イメージの作成
 	if input.Mode == 0 {
-		out, err = generateImage(storage.GetExtensionName(input.Type), input.Path, input.Capacity)
+		out, err := generateImage(storage.GetExtensionName(input.Type), input.Path, input.Capacity)
 		if err != nil {
-			json.ResponseError(c, http.StatusNotFound, err)
-			return
-		} else {
-			json.ResponseOK(c, out)
+			log.Println(out)
+			return err
 		}
+		log.Println("Done: Image Create")
+		node.SendServer(h.Input.Info, 1, 100, "Done: Image Create", nil)
+
 	} else if input.Mode == 1 {
 		// ImaConからイメージ取得(時間がかかるので、go funcにて処理)
 		go func() {
@@ -92,12 +82,89 @@ func (h *StorageHandler) Add(c *gin.Context) {
 			h.Input = input
 
 			err := h.sftpRemoteToLocal()
-			log.Println(err)
-		}()
+			if err != nil {
+				log.Println(err)
+				node.SendServer(h.Input.Info, 1, 0, "", err)
+			}
 
-		json.ResponseOK(c, out)
+			log.Println("Done: Image Create")
+			node.SendServer(h.Input.Info, 1, 100, "Done: Image Create", nil)
+			storage.Path <- path
+		}()
 	}
+	return nil
 }
+
+//func (h *StorageHandler) Add(c *gin.Context) {
+//	var input storage.Storage
+//
+//	err := c.BindJSON(&input)
+//	if err != nil {
+//		json.ResponseError(c, http.StatusBadRequest, err)
+//		return
+//	}
+//
+//	path := ""
+//
+//	for _, tmpConf := range config.Conf.Storage {
+//		if tmpConf.Type == input.PathType {
+//			if input.VMName == "" {
+//				path = tmpConf.Path + "/" + input.Path
+//			} else {
+//				if err := os.Mkdir(tmpConf.Path+"/"+input.VMName, 0775); err != nil {
+//					log.Println(err)
+//					json.ResponseError(c, http.StatusInternalServerError, err)
+//					return
+//				}
+//				path = tmpConf.Path + "/" + input.VMName + "/" + input.Path
+//			}
+//		}
+//	}
+//
+//	log.Println(path)
+//	// Pathが見つからない場合
+//	if path == "" {
+//		json.ResponseError(c, http.StatusNotFound, fmt.Errorf("Error: Not found... "))
+//		return
+//	}
+//
+//	if FileExistsCheck(path) {
+//		json.ResponseError(c, http.StatusNotFound, fmt.Errorf("Error: file already exists... "))
+//		return
+//	}
+//
+//	var out string
+//
+//	// イメージの作成
+//	if input.Mode == 0 {
+//		out, err = generateImage(storage.GetExtensionName(input.Type), input.Path, input.Capacity)
+//		if err != nil {
+//			json.ResponseError(c, http.StatusNotFound, err)
+//			return
+//		} else {
+//			json.ResponseOK(c, out)
+//		}
+//	} else if input.Mode == 1 {
+//		// ImaConからイメージ取得(時間がかかるので、go funcにて処理)
+//		go func() {
+//			log.Println("From: " + input.FromImaCon.Path)
+//			log.Println("To: " + path)
+//
+//			//メソッドに各種情報の追加
+//			h.Auth = &storage.SFTPAuth{
+//				IP: input.FromImaCon.IP, User: config.Conf.ImaCon.User, Pass: config.Conf.ImaCon.Pass,
+//			}
+//			h.SrcPath = input.FromImaCon.Path
+//			h.DstPath = path
+//			h.Input = input
+//
+//			err := h.sftpRemoteToLocal()
+//			log.Println(err)
+//		}()
+//
+//		json.ResponseOK(c, out)
+//	}
+//}
 
 func (h *StorageHandler) ConvertImage(c *gin.Context) {
 	var input storage.Convert

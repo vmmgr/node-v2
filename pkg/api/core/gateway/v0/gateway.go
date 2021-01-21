@@ -49,7 +49,7 @@ func NodeAPI() {
 			//
 			// Storage
 			//
-			v1.POST("/storage", storageh.Add)
+			//v1.POST("/storage", storageh.Add)
 			v1.GET("/storage", storageh.InfoImage)
 			v1.POST("/storage/convert", storageh.ConvertImage)
 		}

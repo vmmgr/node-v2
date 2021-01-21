@@ -2,12 +2,14 @@ package vm
 
 import (
 	libvirtxml "github.com/libvirt/libvirt-go-xml"
+	"github.com/vmmgr/node/pkg/api/core/gateway"
 	"github.com/vmmgr/node/pkg/api/core/nic"
 	"github.com/vmmgr/node/pkg/api/core/storage"
 	"github.com/vmmgr/node/pkg/api/core/tool/cloudinit"
 )
 
 type VirtualMachine struct {
+	Info           gateway.Info        `json:"info"` //Info
 	Name           string              `json:"name"`
 	UUID           string              `json:"uuid"`
 	Memory         uint                `json:"memory"`
@@ -21,12 +23,18 @@ type VirtualMachine struct {
 	Storage        []storage.VMStorage `json:"storage"`
 	CloudInit      cloudinit.CloudInit `json:"cloudinit"`
 	CloudInitApply bool                `json:"cloudinit_apply"`
+	Template       Template            `json:"template"`
 	Stat           uint                `json:"stat"`
 }
 
 type Detail struct {
 	VM   libvirtxml.Domain `json:"vm"`
 	Stat uint              `json:"stat"`
+}
+
+type Template struct {
+	Apply   bool            `json:"apply"`
+	Storage storage.Storage `json:"storage"`
 }
 
 type OS struct {
