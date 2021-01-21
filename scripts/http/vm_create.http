@@ -1,0 +1,37 @@
+POST http://10.100.1.180:8080/api/v1/vm
+Content-Type: application/json
+
+{
+  "name": "winsrv1",
+  "cpu_mode": 0,
+  "memory": 4096,
+  "vcpu": 2,
+  "vnc_port": 0,
+  "os": {
+    "boot": "hd",
+    "arch": 64,
+    "kernel": "",
+    "type": ""
+  },
+  "storage": [
+    {
+      "type": 0,
+      "filetype": 0,
+      "path_type": 0,
+      "boot": 0,
+      "path": "/home/yonedayuto/vm/winsrv1.qcow2",
+      "readonly": false
+    }
+  ],
+  "nic": [
+    {
+      "type": 0,
+      "driver": 0,
+      "mode": 0,
+      "mac": "",
+      "device": "br0"
+    }
+  ]
+}
+
+###
