@@ -1,2 +1,3 @@
-/cmd/backend/con.conf
+/cmd/node/con.json
 .idea
+/cmd/node/con.json
