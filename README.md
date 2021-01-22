@@ -30,6 +30,16 @@ unix_sock_ro_perms= "0777"
 unix_sock_rw_perms= "0770"
 ```
 
+### PCIパススルーやUSBパススルーをする際は必要
+#### IOMMUの有効化
+**/etc/grub/default**
+```
+#Intel
+GRUB_CMDLINE_LINUX_DEFAULT="intel_iommu = on"
+#AMD
+GRUB_CMDLINE_LINUX_DEFAULT="AMD_iommu = on"
+```
+
 ### Machine一覧表示
 ```
 kvm -M help　(ubuntu)
@@ -38,3 +48,4 @@ kvm -M help　(ubuntu)
 
 ### VNCポート、WebSocketポート
 WebSocketポートはVNCポート-500により
+
