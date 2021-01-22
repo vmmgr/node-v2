@@ -3,6 +3,8 @@ package v0
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/libvirt/libvirt-go"
+	pci "github.com/vmmgr/node/pkg/api/core/passthrough/pci/v0"
+	usb "github.com/vmmgr/node/pkg/api/core/passthrough/usb/v0"
 	storage "github.com/vmmgr/node/pkg/api/core/storage/v0"
 	"github.com/vmmgr/node/pkg/api/core/tool/config"
 	vm "github.com/vmmgr/node/pkg/api/core/vm/v0"
@@ -20,6 +22,8 @@ func NodeAPI() {
 
 	vmh := vm.NewVMHandler(vm.VMHandler{Conn: conn})
 	storageh := storage.NewStorageHandler(storage.StorageHandler{Conn: conn})
+	pcih := pci.NewPCIHandler(pci.PCIHandler{Conn: conn})
+	usbh := usb.NewUSBHandler(usb.USBHandler{Conn: conn})
 
 	router := gin.Default()
 	router.Use(cors)
@@ -44,7 +48,11 @@ func NodeAPI() {
 			v1.DELETE("/vm/:id/power", vmh.Shutdown)
 			v1.PUT("/vm/:id/reset", vmh.Reset)
 
-			// VNC
+			// PCI
+			v1.GET("/pci", pcih.GetAPI)
+
+			// USB
+			v1.GET("/usb", usbh.GetAPI)
 
 			//
 			// Storage
