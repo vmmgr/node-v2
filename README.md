@@ -39,6 +39,7 @@ GRUB_CMDLINE_LINUX_DEFAULT="intel_iommu = on"
 #AMD
 GRUB_CMDLINE_LINUX_DEFAULT="AMD_iommu = on"
 ```
+sudo grub-mkconfig -o /boot/grub/grub.cfg
 
 ### Machine一覧表示
 ```
