@@ -32,7 +32,7 @@ unix_sock_rw_perms= "0770"
 
 ### PCIパススルーやUSBパススルーをする際は必要
 #### IOMMUの有効化
-**/etc/grub/default**
+**/etc/default/grub**
 ```
 #Intel
 GRUB_CMDLINE_LINUX_DEFAULT="intel_iommu = on"
