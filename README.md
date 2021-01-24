@@ -39,7 +39,15 @@ GRUB_CMDLINE_LINUX_DEFAULT="intel_iommu = on"
 #AMD
 GRUB_CMDLINE_LINUX_DEFAULT="AMD_iommu = on"
 ```
+```
 sudo grub-mkconfig -o /boot/grub/grub.cfg
+```
+#### GPUパススルーの場合
+```
+echo "blacklist radeon" >> /etc/modprobe.d/blacklist.conf
+echo "blacklist nouveau" >> /etc/modprobe.d/blacklist.conf
+echo "blacklist nvidia" >> /etc/modprobe.d/blacklist.conf
+```
 
 ### Machine一覧表示
 ```
